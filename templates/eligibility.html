@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CheeseSpoon — Eligibility</title>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+
+<body>
+  <nav id="top-navbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
+        <span>CheeseSpoon</span>
+        <img
+          src="{{ url_for('static', filename='logo.png') }}"
+          alt="CheeseSpoon"
+          class="brand-logo"
+        />
+      </a>
+
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#top-navbar-supported-content">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div id="top-navbar-supported-content" class="collapse navbar-collapse">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('upload') }}">Back</a></li>
+          <li class="nav-item ml-lg-2">
+            <a class="btn btn-sm btn-dark" href="{{ url_for('recommendations')}}">Next: Recommendations</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container my-4">
+    <div class="row">
+      <div class="col-lg-8">
+        <h4 class="mb-1">Eligibility — What can I take?</h4>
+        <div class="muted small mb-3">
+          Step 2/3 — filtered by prerequisites + semester offerings (mock data).
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="feature-card p-3">
+          <div class="d-flex justify-content-between">
+            <span class="muted small">Eligible</span>
+            <span class="badge badge-dark badge-pill">{{ summary.eligible }}</span>
+          </div>
+          <div class="d-flex justify-content-between mt-1">
+            <span class="muted small">Missing prereq</span>
+            <span class="badge badge-light badge-pill border">{{ summary.missing_prereq }}</span>
+          </div>
+          <div class="d-flex justify-content-between mt-1">
+            <span class="muted small">Not offered</span>
+            <span class="badge badge-light badge-pill border">{{ summary.not_offered }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature-card p-3 mt-3">
+      <div class="form-row">
+        <div class="form-group col-md-4 mb-2">
+          <label class="muted small mb-1">Search</label>
+          <input id="search" type="text" class="form-control form-control-sm" placeholder="e.g., ML, OS, 094...">
+        </div>
+        <div class="form-group col-md-4 mb-2">
+          <label class="muted small mb-1">Status</label>
+          <select id="statusFilter" class="form-control form-control-sm">
+            <option value="all" selected>All</option>
+            <option value="eligible">Eligible</option>
+            <option value="missing_prereq">Missing prereq</option>
+            <option value="not_offered">Not offered</option>
+          </select>
+        </div>
+        <div class="form-group col-md-4 mb-2 d-flex align-items-end">
+          <button id="reset" class="btn btn-sm btn-outline-secondary btn-block">Reset</button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-sm mb-0">
+          <thead>
+            <tr class="muted small">
+              <th style="width: 12%">Course</th>
+              <th style="width: 38%">Name</th>
+              <th style="width: 10%">Points</th>
+              <th style="width: 15%">Status</th>
+              <th style="width: 25%">Reason</th>
+            </tr>
+          </thead>
+          <tbody id="courseTbody">
+            {% for c in courses %}
+            <tr data-status="{{ c.status }}">
+              <td><span class="kbd-pill">{{ c.id }}</span></td>
+              <td>{{ c.name }}</td>
+              <td>{{ "%.1f"|format(c.points) }}</td>
+              <td>
+                {% if c.status == "eligible" %}
+                  <span class="badge badge-success">Eligible</span>
+                {% elif c.status == "missing_prereq" %}
+                  <span class="badge badge-warning">Missing prereq</span>
+                {% else %}
+                  <span class="badge badge-secondary">Not offered</span>
+                {% endif %}
+              </td>
+              <td class="muted small">{{ c.reason }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="d-flex justify-content-between mt-3">
+        <a class="btn btn-outline-secondary" href="{{ url_for('upload') }}">Back</a>
+        <a class="btn btn-dark" href="{{ url_for('recommendations')}}">
+          Continue to Recommendations (next)
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const searchEl = document.getElementById("search");
+    const statusEl = document.getElementById("statusFilter");
+    const resetEl = document.getElementById("reset");
+    const rows = Array.from(document.querySelectorAll("#courseTbody tr"));
+
+    function applyFilters() {
+      const q = (searchEl.value || "").toLowerCase().trim();
+      const status = statusEl.value;
+
+      rows.forEach(r => {
+        const text = r.innerText.toLowerCase();
+        const rStatus = r.getAttribute("data-status");
+        const matchesText = !q || text.includes(q);
+        const matchesStatus = (status === "all") || (rStatus === status);
+        r.style.display = (matchesText && matchesStatus) ? "" : "none";
+      });
+    }
+
+    searchEl.addEventListener("input", applyFilters);
+    statusEl.addEventListener("change", applyFilters);
+    resetEl.addEventListener("click", () => {
+      searchEl.value = "";
+      statusEl.value = "all";
+      applyFilters();
+    });
+  </script>
+</body>
+</html>
