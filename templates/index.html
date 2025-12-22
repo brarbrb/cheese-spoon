@@ -34,15 +34,30 @@
 
       <div id="top-navbar-supported-content" class="collapse navbar-collapse top-navbar-content-uninitialized">
         <ul class="navbar-nav ml-auto">
-          <li class="nav-item"><a class="nav-link" href="#how">How it works</a></li>
-          <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
-          <li class="nav-item"><a class="nav-link" href="#privacy">Privacy</a></li>
-          <li class="nav-item ml-lg-2">
+<li class="nav-item">
+  <button type="button" class="btn btn-sm btn-outline-secondary mr-lg-2"
+          data-toggle="modal" data-target="#howItWorksModal">
+    How it works
+  </button>
+</li>
+<li class="nav-item">
+  <button type="button" class="btn btn-sm btn-outline-secondary mr-lg-2"
+          data-toggle="modal" data-target="#featuresModal">
+    Features
+  </button>
+</li>
+<li class="nav-item">
+  <button type="button" class="btn btn-sm btn-outline-secondary mr-lg-2"
+          data-toggle="modal" data-target="#privacyModal">
+    Privacy
+  </button>
+</li>
+          <!-- <li class="nav-item ml-lg-2">
             <a class="btn btn-sm btn-outline-secondary" href="#demo">Try demo</a>
           </li>
           <li class="nav-item ml-lg-2">
             <a class="btn btn-sm btn-dark" href="#start">Upload grade sheet</a>
-          </li>
+          </li> -->
         </ul>
       </div>
     </div>
@@ -62,30 +77,30 @@
             Get what you <span class="text-dark">should</span> take.
           </h1>
 
-          <p class="muted mb-4">
-            CheeseSpoon filters eligible & opening courses automatically, then recommends the best next courses
-            based on your study plan, preferences, and insights extracted from reviews.
-          </p>
+<p class="muted mb-4">
+  Personalized course recommendations from your grades, preferences, and reviews.
+</p>
+
 
           <div class="d-flex flex-wrap align-items-center">
             <a id="start" class="btn btn-dark mr-2 mb-2" href="{{ url_for('upload') }}">
               Upload grade sheet
             </a>
-            <a id="demo" class="btn btn-outline-secondary mr-2 mb-2" href="#">
-              Try demo profile
+            <a id="demo" class="btn btn-outline-secondary mr-2 mb-2" href="{{ url_for('course_overview') }}">
+              Course overview
             </a>
           </div>
 
-          <div class="mt-3 small-note muted">
+          <!-- <div class="mt-3 small-note muted">
             Answers 3 questions: <strong>Which courses are opening?</strong> · <strong>What can I take?</strong> · <strong>What should I take?</strong>
-          </div>
+          </div> -->
         </div>
 
         <div class="col-lg-5 mt-4 mt-lg-0">
           <div class="fake-screenshot p-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <strong class="small">Preview</strong>
-              <span class="badge badge-light">Mock</span>
+              <!-- <span class="badge badge-light">Mock</span> -->
             </div>
 
             <div class="list-group">
@@ -112,8 +127,8 @@
         </div>
       </div>
     </section>
-
-    <!-- How it works -->
+<!-- How it works -->
+    <!--
     <section id="how" class="mt-4">
       <h4 id="shared-schedule-title" class="mb-2">How it works</h4>
 
@@ -147,10 +162,10 @@
           </div>
         </div>
       </div>
-    </section>
+    </section> -->
 
     <!-- Features -->
-    <section id="features" class="mt-2">
+    <!-- <section id="features" class="mt-2">
       <div class="row">
         <div class="col-md-4 mb-3">
           <div class="feature-card p-3">
@@ -177,10 +192,10 @@
           </div>
         </div>
       </div>
-    </section>
+    </section> -->
 
     <!-- Privacy -->
-    <section id="privacy" class="mt-2 mb-5">
+    <!-- <section id="privacy" class="mt-2 mb-5">
       <div class="feature-card p-3">
         <strong>Privacy & Transparency</strong>
         <div class="muted small mt-2">
@@ -188,7 +203,7 @@
           and how recommendations are computed.
         </div>
       </div>
-    </section>
+    </section> -->
 
     <footer class="text-center muted small pb-4">
       <div>CheeseSpoon · Intelligent Personalized Course Recommender</div>
@@ -205,5 +220,171 @@
     document.getElementById('top-navbar-supported-content')
       .classList.remove('top-navbar-content-uninitialized');
   </script>
+  <!-- How it works Modal -->
+<div class="modal fade" id="howItWorksModal" tabindex="-1" role="dialog" aria-labelledby="howItWorksTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="howItWorksTitle">How it works</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <div class="feature-card p-3">
+              <div class="muted small mb-1">Step 1</div>
+              <strong>Upload grade sheet</strong>
+              <div class="muted small mt-2">Parse completed courses & credits.</div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <div class="feature-card p-3">
+              <div class="muted small mb-1">Step 2</div>
+              <strong>Eligibility filter</strong>
+              <div class="muted small mt-2">Validate prerequisites + offered courses.</div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <div class="feature-card p-3">
+              <div class="muted small mb-1">Step 3</div>
+              <strong>Recommendations</strong>
+              <div class="muted small mt-2">Rank by interest match + reviews + workload fit.</div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <div class="feature-card p-3">
+              <div class="muted small mb-1">Step 4</div>
+              <strong>Build your plan</strong>
+              <div class="muted small mt-2">Add to wishlist and export (later).</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-light small mb-0">
+          <strong>Note:</strong> This is a prototype mockup. Final system will show “why recommended”
+          and will clearly communicate data sources and limitations.
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <a class="btn btn-dark" href="{{ url_for('upload') }}">Start (Upload)</a>
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Privacy Modal -->
+<div class="modal fade" id="privacyModal" tabindex="-1" role="dialog" aria-labelledby="privacyTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="privacyTitle">Privacy & Transparency</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="feature-card p-3 mb-3">
+          <div class="muted small mb-1"><strong>Prototype status</strong></div>
+          <div class="muted small">
+            This is a mock UI for a student project. Some buttons and data are simulated.
+          </div>
+        </div>
+
+        <div class="feature-card p-3 mb-3">
+          <div class="muted small mb-1"><strong>What we use (intended)</strong></div>
+          <ul class="small mb-0">
+            <li>Course catalog + availability (semester offerings)</li>
+            <li>Prerequisites + your completed courses (from your grade sheet)</li>
+            <li>Public course descriptions + student review text</li>
+          </ul>
+        </div>
+
+        <div class="feature-card p-3 mb-3">
+          <div class="muted small mb-1"><strong>What we store (intended)</strong></div>
+          <div class="small">
+            For the prototype, we aim to store only what’s needed to generate recommendations (e.g., course IDs / credits),
+            and avoid storing the original uploaded file.
+          </div>
+        </div>
+
+        <div class="feature-card p-3">
+          <div class="muted small mb-1"><strong>Transparency</strong></div>
+          <div class="small">
+            Recommendations will include “why recommended” explanations (e.g., interest match, workload signals, bottleneck impact),
+            and will make limitations visible (e.g., low review coverage).
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Features Modal -->
+<div class="modal fade" id="featuresModal" tabindex="-1" role="dialog" aria-labelledby="featuresTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="featuresTitle">Features</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <div class="feature-card p-3">
+              <strong>Eligibility</strong>
+              <div class="muted small mt-2">
+                Filters to courses you can take this semester (prereqs + availability).
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <div class="feature-card p-3">
+              <strong>Recommendations</strong>
+              <div class="muted small mt-2">
+                Ranks by interest match, course quality signals, and preference fit.
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <div class="feature-card p-3">
+              <strong>Explainability</strong>
+              <div class="muted small mt-2">
+                “Why recommended” bullets + details (workload, exam/project, bottleneck impact).
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-light small mb-0">
+          This is a mock UI. Final system will show data coverage (e.g., number of reviews) and limitations.
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <a class="btn btn-dark" href="{{ url_for('upload') }}">Start (Upload)</a>
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

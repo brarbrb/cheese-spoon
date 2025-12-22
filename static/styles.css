@@ -262,3 +262,61 @@ body {
   padding: .4rem .5rem;
   font-weight: 400;
 }
+
+
+.dropzone {
+  position: relative;
+  border: 2px dashed rgba(0,0,0,.25);
+  border-radius: .5rem;
+  background: rgba(0,0,0,.02);
+  padding: 18px;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+
+.dropzone:hover {
+  background: rgba(0,0,0,.03);
+  border-color: rgba(0,0,0,.35);
+}
+
+.dropzone.is-dragover {
+  background: rgba(0,0,0,.06);
+  border-color: rgba(0,0,0,.55);
+}
+
+.dropzone-inner {
+  pointer-events: none; /* click passes through to container */
+  text-align: center;
+}
+
+.dropzone-title {
+  font-weight: 600;
+}
+
+.dropzone-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+
+/* Recommendations: cards should size to content (avoid huge empty areas) */
+.rec-card {
+  height: auto;                 /* override feature-card height:100% */
+}
+
+/* Reduce vertical spacing inside recommendation cards */
+.rec-card .fit-bar {
+  margin-top: .35rem !important;
+  margin-bottom: .6rem !important;
+  height: 8px;
+}
+
+.rec-card ul {
+  margin-bottom: .4rem;
+}
+
+.rec-card .mt-3 {
+  margin-top: .6rem !important;
+}

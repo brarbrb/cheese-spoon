@@ -28,14 +28,25 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div id="top-navbar-supported-content" class="collapse navbar-collapse">
-        <ul class="navbar-nav ml-auto">
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('upload') }}">Back</a></li>
-          <li class="nav-item ml-lg-2">
-            <a class="btn btn-sm btn-dark" href="{{ url_for('recommendations')}}">Next: Recommendations</a>
-          </li>
-        </ul>
-      </div>
+<div id="top-navbar-supported-content" class="collapse navbar-collapse">
+  <ul class="navbar-nav ml-auto align-items-lg-center">
+
+    <li class="nav-item">
+      <a class="btn btn-sm btn-outline-secondary mr-lg-2"
+         href="{{ url_for('index') }}">
+        Home
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="btn btn-sm btn-outline-secondary mr-lg-2"
+         href="{{ url_for('upload') }}">
+        Course Overview
+      </a>
+    </li>
+
+  </ul>
+</div>
     </div>
   </nav>
 
@@ -44,7 +55,7 @@
       <div class="col-lg-8">
         <h4 class="mb-1">Eligibility — What can I take?</h4>
         <div class="muted small mb-3">
-          Step 2/3 — filtered by prerequisites + semester offerings (mock data).
+          Step 2/3 — Courses at your faculty you haven't took yet.
         </div>
       </div>
       <div class="col-lg-4">
@@ -121,8 +132,11 @@
       <div class="d-flex justify-content-between mt-3">
         <a class="btn btn-outline-secondary" href="{{ url_for('upload') }}">Back</a>
         <a class="btn btn-dark" href="{{ url_for('recommendations')}}">
-          Continue to Recommendations (next)
+          Continue
         </a>
+                <!-- <a class="btn btn-dark" href="{{ url_for('recommendations')}}">
+          Recommendations
+        </a> -->
       </div>
     </div>
   </main>

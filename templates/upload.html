@@ -29,12 +29,26 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div id="top-navbar-supported-content" class="collapse navbar-collapse">
-        <ul class="navbar-nav ml-auto">
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
-          <li class="nav-item"><a class="nav-link disabled" href="#">Upload</a></li>
-        </ul>
-      </div>
+<div id="top-navbar-supported-content" class="collapse navbar-collapse">
+  <ul class="navbar-nav ml-auto align-items-lg-center">
+
+    <li class="nav-item">
+      <a class="btn btn-sm btn-outline-secondary mr-lg-2"
+         href="{{ url_for('index') }}">
+        Home
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="btn btn-sm btn-outline-secondary mr-lg-2"
+         href="{{ url_for('upload') }}">
+        Course Overview
+      </a>
+    </li>
+
+  </ul>
+</div>
+
     </div>
   </nav>
 
@@ -53,16 +67,39 @@
         <div class="feature-card p-4">
           <h4 class="mb-1">Upload & Preferences</h4>
           <div class="muted small mb-4">
-            Step 1/3 — we’ll use this to filter eligibility and personalize recommendations.
+            Step 1/3 — we'll use this to filter eligibility and personalize recommendations.
           </div>
 
           <form method="POST" enctype="multipart/form-data">
             <!-- Upload -->
-            <div class="form-group">
+            <!-- <div class="form-group">
               <label class="mb-1"><strong>Grade sheet</strong></label>
               <div class="muted small mb-2">PDF or Excel.</div>
               <input type="file" class="form-control-file" name="grades_file" accept=".pdf,.xlsx,.xls">
-            </div>
+            </div> -->
+<div class="form-group">
+  <label class="mb-1"><strong>Grade sheet</strong></label>
+  <!-- <div class="muted small mb-2">PDF or Excel. Drag & drop or click to browse.</div> -->
+  <div class="muted small mb-2">PDF or Excel.</div>
+
+  <!-- Dropzone -->
+  <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Upload grade sheet">
+    <div class="dropzone-inner">
+      <div class="dropzone-title">Drop your file here</div>
+      <div class="muted small">or click to choose a file</div>
+      <div id="fileName" class="dropzone-filename muted small mt-2" style="display:none;"></div>
+    </div>
+
+    <!-- Real input (hidden) -->
+    <input
+      id="gradesFileInput"
+      type="file"
+      name="grades_file"
+      accept=".pdf,.xlsx,.xls"
+      class="dropzone-input"
+    />
+  </div>
+</div>
 
             <hr>
 
@@ -71,18 +108,20 @@
               <div class="form-group col-md-4">
                 <label class="mb-1"><strong>Faculty</strong></label>
                 <select class="form-control" name="faculty">
-                  <option value="09XXXX" selected>09XXXX (CS/DS faculty)</option>
+                  <!-- <option value="09XXXX" selected>09XXXX (CS/DS faculty)</option> -->
+                 <option value="Data" selected>Data and Decisions Science </option>
                   <option value="Electrical">Electrical Engineering</option>
-                  <option value="Industrial">Industrial Engineering</option>
+                  <option value="Computer">Computer Sciences</option>
                 </select>
               </div>
 
               <div class="form-group col-md-4">
-                <label class="mb-1"><strong>Track</strong></label>
+                <label class="mb-1"><strong>Path</strong></label>
                 <select class="form-control" name="track">
-                  <option value="Software" selected>Software Engineering</option>
-                  <option value="DataScience">Data Science</option>
-                  <option value="ComputerEng">Computer Engineering</option>
+                 <option value="DataEngineering" selected>Data Engineering</option>
+                  <option value="System" selected>System Engineering</option>
+                  <!-- <option value="DataScience">Data Science</option> -->
+                  <option value="Industrial">Industrial Engineering</option>
                 </select>
               </div>
 
@@ -101,8 +140,8 @@
             <!-- Preference chips -->
             <div class="form-group">
               <label class="mb-1"><strong>Preferences (optional)</strong></label>
-              <div class="muted small mb-2">Click chips to add/remove. Add custom ones too.</div>
-
+              <!-- <div class="muted small mb-2">Click chips to add/remove. Add custom ones too.</div> -->
+              <div class="muted small mb-2">Click chips to add/remove.</div>
               <div class="mb-2">
                 <button type="button" class="btn btn-sm btn-outline-secondary pref-suggest" data-value="Prefer projects">Prefer projects</button>
                 <button type="button" class="btn btn-sm btn-outline-secondary pref-suggest" data-value="Avoid heavy math">Avoid heavy math</button>
@@ -111,13 +150,13 @@
               </div>
 
               <div id="pref-chips" class="pref-chips mb-2"></div>
-
+<!-- 
               <div class="input-group">
                 <input id="pref-input" type="text" class="form-control" placeholder="Add preference (e.g., no Friday, prefer OS/ML)">
                 <div class="input-group-append">
                   <button id="pref-add" type="button" class="btn btn-outline-dark">Add</button>
                 </div>
-              </div>
+              </div> -->
 
               <!-- Hidden field that will be posted -->
               <input type="hidden" name="preferences_chips" id="preferences_chips" value="">
@@ -132,12 +171,12 @@
 
             <!-- Privacy note -->
             <div class="alert alert-light small mb-4">
-              <strong>Privacy:</strong> We don’t store the original grade sheet — only parsed course IDs (mock statement for prototype).
+              <strong>Privacy Note:</strong> We don't store the original grade sheet — only parsed course IDs.
             </div>
 
             <div class="d-flex justify-content-between">
               <a class="btn btn-outline-secondary" href="{{ url_for('index') }}">Back</a>
-              <button class="btn btn-dark" type="submit">Continue (mock)</button>
+              <button class="btn btn-dark" type="submit">Continue</button>
             </div>
           </form>
         </div>
@@ -210,5 +249,61 @@
       }
     });
   </script>
+  <script>
+  const dropzone = document.getElementById("dropzone");
+  const fileInput = document.getElementById("gradesFileInput");
+  const fileNameEl = document.getElementById("fileName");
+
+  function showFileName(file) {
+    if (!file) {
+      fileNameEl.style.display = "none";
+      fileNameEl.textContent = "";
+      return;
+    }
+    fileNameEl.style.display = "block";
+    fileNameEl.textContent = `Selected: ${file.name}`;
+  }
+
+  // Clicking the dropzone triggers file picker (input already covers it, but this helps keyboard)
+  dropzone.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      fileInput.click();
+    }
+  });
+
+  // When user selects via picker
+  fileInput.addEventListener("change", () => {
+    showFileName(fileInput.files && fileInput.files[0]);
+  });
+
+  // Drag events
+  ["dragenter", "dragover"].forEach(evt => {
+    dropzone.addEventListener(evt, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.add("is-dragover");
+    });
+  });
+
+  ["dragleave", "drop"].forEach(evt => {
+    dropzone.addEventListener(evt, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.remove("is-dragover");
+    });
+  });
+
+  // Drop -> assign files to input
+  dropzone.addEventListener("drop", (e) => {
+    const files = e.dataTransfer.files;
+    if (!files || files.length === 0) return;
+
+    // This works in modern browsers
+    fileInput.files = files;
+    showFileName(files[0]);
+  });
+</script>
+
 </body>
 </html>
