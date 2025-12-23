@@ -30,12 +30,16 @@ source .venv/bin/activate
 
 ### 2) Install dependencies
 ```bash
-pip install -r requirements.txt
+pip install flask
 ```
 
 ### 3) Start the server
 ```bash
 flask --app app run --debug
 ```
+or
+```bash
+python app.py
+```
 
-Open: http://127.0.0.1:5000
+**Note**: For now this is the mockup version, i.e. app.py is mostly statick with mock data. 
