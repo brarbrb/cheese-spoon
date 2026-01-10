@@ -10,12 +10,14 @@ def index():
 
 @app.route("/upload", methods=["GET", "POST"])
 def upload():
+    # TODO: get PDF grade sheets and convert to df. get other parameters from user.
+    #  Calculate Eligable courses and pass to eligibility page
     if request.method == "POST":
-        file = request.files.get("grades_file")
-        faculty = request.form.get("faculty")
+        file = request.files.get("grades_file") # PDF file
+        faculty = request.form.get("faculty") # Always ds
         track = request.form.get("track")
         semester = request.form.get("semester")
-        prefs_text = request.form.get("preferences_text")
+        prefs_text = request.form.get("preferences_text") # Free text for NLP
         prefs_chips = request.form.get("preferences_chips")
 
         # mock behavior only (no saving)
