@@ -1,5 +1,7 @@
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, request, flash, redirect, url_for, session
 import re
+from utilities import parse_grades_pdf
+
 # Raz
 app = Flask(__name__)
 app.secret_key = "dev"  # change later
@@ -14,6 +16,15 @@ def upload():
     #  Calculate Eligable courses and pass to eligibility page
     if request.method == "POST":
         file = request.files.get("grades_file") # PDF file
+        if file and file.filename != '':
+            completed_course_ids = parse_grades_pdf(file)
+            session['completed_courses'] = completed_course_ids
+                    
+        # (Optional) Store other form data if needed
+        session['user_prefs'] = {
+            "faculty": request.form.get("faculty"),
+            "track": request.form.get("track")
+        }
         faculty = request.form.get("faculty") # Always ds
         track = request.form.get("track")
         semester = request.form.get("semester")
