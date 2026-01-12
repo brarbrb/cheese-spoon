@@ -1,0 +1,522 @@
+[
+  {
+    "course_id": "094412",
+    "name": "00940412 - \u05d4\u05e1\u05ea\u05d1\u05e8\u05d5\u05ea \u05de",
+    "data_value": "00940412"
+  },
+  {
+    "course_id": "094411",
+    "name": "00940411 - \u05d4\u05e1\u05ea\u05d1\u05e8\u05d5\u05ea \u05ea'",
+    "data_value": "00940411"
+  },
+  {
+    "course_id": "094219",
+    "name": "00940219 - \u05d4\u05e0\u05d3\u05e1\u05ea \u05ea\u05d5\u05db\u05e0\u05d4",
+    "data_value": "00940219"
+  },
+  {
+    "course_id": "094424",
+    "name": "00940424 - \u05e1\u05d8\u05d8\u05d9\u05e1\u05d8\u05d9\u05e7\u05d4 1",
+    "data_value": "00940424"
+  },
+  {
+    "course_id": "094513",
+    "name": "00940513 - \u05de\u05d0\u05e7\u05e8\u05d5 \u05db\u05dc\u05db\u05dc\u05d4",
+    "data_value": "00940513"
+  },
+  {
+    "course_id": "094591",
+    "name": "00940591 - \u05de\u05d1\u05d5\u05d0 \u05dc\u05db\u05dc\u05db\u05dc\u05d4",
+    "data_value": "00940591"
+  },
+  {
+    "course_id": "094504",
+    "name": "00940504 - \u05de\u05d9\u05e7\u05e8\u05d5 \u05db\u05dc\u05db\u05dc\u05d4 2",
+    "data_value": "00940504"
+  },
+  {
+    "course_id": "094701",
+    "name": "00940701 - \u05e4\u05e8\u05d5\u05d9\u05e7\u05d8 \u05de\u05d7\u05e7\u05e8\u05d9 1",
+    "data_value": "00940701"
+  },
+  {
+    "course_id": "094702",
+    "name": "00940702 - \u05e4\u05e8\u05d5\u05d9\u05e7\u05d8 \u05de\u05d7\u05e7\u05e8\u05d9 2",
+    "data_value": "00940702"
+  },
+  {
+    "course_id": "094703",
+    "name": "00940703 - \u05e4\u05e8\u05d5\u05d9\u05e7\u05d8 \u05de\u05d7\u05e7\u05e8\u05d9 3",
+    "data_value": "00940703"
+  },
+  {
+    "course_id": "094423",
+    "name": "00940423 - \u05de\u05d1\u05d5\u05d0 \u05dc\u05e1\u05d8\u05d8\u05d9\u05e1\u05d8\u05d9\u05e7\u05d4",
+    "data_value": "00940423"
+  },
+  {
+    "course_id": "094241",
+    "name": "00940241 - \u05e0\u05d9\u05d4\u05d5\u05dc \u05de\u05e1\u05d3\u05d9 \u05e0\u05ea\u05d5\u05e0\u05d9\u05dd",
+    "data_value": "00940241"
+  },
+  {
+    "course_id": "094569",
+    "name": "00940569 - \u05e9\u05d5\u05e7 \u05d4\u05d4\u05d5\u05df \u05d5\u05d4\u05d4\u05e9\u05e7\u05e2\u05d5\u05ea",
+    "data_value": "00940569"
+  },
+  {
+    "course_id": "094170",
+    "name": "00940170 - \u05e9\u05d9\u05d8\u05d5\u05ea \u05d1\u05d4\u05e0\u05d3\u05e1\u05ea \u05ea\u05e2\u05e9\u05d9\u05d4",
+    "data_value": "00940170"
+  },
+  {
+    "course_id": "094564",
+    "name": "00940564 - \u05de\u05d1\u05d5\u05d0 \u05dc\u05e0\u05d9\u05d4\u05d5\u05dc \u05e4\u05d9\u05e0\u05e0\u05e1\u05d9",
+    "data_value": "00940564"
+  },
+  {
+    "course_id": "094704",
+    "name": "00940704 - \u05e1\u05d3\u05e0\u05ea \u05ea\u05db\u05e0\u05d5\u05ea \u05d1\u05e9\u05e4\u05ea \u05e1\u05d9",
+    "data_value": "00940704"
+  },
+  {
+    "course_id": "094842",
+    "name": "00940842 - \u05d3\u05d9\u05e0\u05d9 \u05de\u05e1\u05d9\u05dd \u05d5\u05de\u05e7\u05e8\u05e7\u05e2\u05d9\u05df",
+    "data_value": "00940842"
+  },
+  {
+    "course_id": "094345",
+    "name": "00940345 - \u05de\u05ea\u05de\u05d8\u05d9\u05e7\u05d4 \u05d3\u05d9\u05e1\u05e7\u05e8\u05d8\u05d9\u05ea \u05ea'",
+    "data_value": "00940345"
+  },
+  {
+    "course_id": "094198",
+    "name": "00940198 - \u05d0\u05d9\u05e8\u05d5\u05e2\u05d9\u05dd \u05d1\u05d4\u05e0\u05d3\u05e1\u05ea \u05ea\u05e2\u05e9\u05d9\u05d4",
+    "data_value": "00940198"
+  },
+  {
+    "course_id": "094142",
+    "name": "00940142 - \u05ea\u05e4\u05e2\u05d5\u05dc \u05de\u05e2\u05e8' \u05d9\u05d9\u05e6\u05d5\u05e8 \u05d5\u05e9\u05e8\u05d5\u05ea",
+    "data_value": "00940142"
+  },
+  {
+    "course_id": "094224",
+    "name": "00940224 - \u05de\u05d1\u05e0\u05d9 \u05e0\u05ea\u05d5\u05e0\u05d9\u05dd \u05d5\u05d0\u05dc\u05d2\u05d5\u05e8\u05d9\u05ea\u05de\u05d9\u05dd",
+    "data_value": "00940224"
+  },
+  {
+    "course_id": "094594",
+    "name": "00940594 - \u05e2\u05e7\u05e8\u05d5\u05e0\u05d5\u05ea \u05d4\u05db\u05dc\u05db\u05dc\u05d4 \u05dc\u05de\u05d4\u05e0\u05d3\u05e1\u05d9\u05dd",
+    "data_value": "00940594"
+  },
+  {
+    "course_id": "094822",
+    "name": "00940822 - \u05d7\u05e9\u05d1\u05d5\u05e0\u05d0\u05d5\u05ea \u05e0\u05d9\u05d4\u05d5\u05dc\u05d9\u05ea \u05de\u05ea\u05e7\u05d3\u05de\u05ea",
+    "data_value": "00940822"
+  },
+  {
+    "course_id": "094101",
+    "name": "00940101 - \u05de\u05d1\u05d5\u05d0 \u05dc\u05d4\u05e0\u05d3\u05e1\u05ea \u05ea\u05e2\u05e9\u05d9\u05d4 \u05d5\u05e0\u05d9\u05d4\u05d5\u05dc",
+    "data_value": "00940101"
+  },
+  {
+    "course_id": "094481",
+    "name": "00940481 - \u05de\u05d1\u05d5\u05d0 \u05dc\u05d4\u05e1\u05ea\u05d1\u05e8\u05d5\u05ea \u05d5\u05e1\u05d8\u05d8\u05d9\u05e1\u05d8\u05d9\u05e7\u05d4",
+    "data_value": "00940481"
+  },
+  {
+    "course_id": "094395",
+    "name": "00940395 - \u05e7\u05d3\u05dd \u05e4\u05e8\u05d5\u05d9\u05e7\u05d8 \u05ea\u05db\u05df, \u05d4\u05e0\u05d3\u05e1\u05ea \u05de\"\u05de",
+    "data_value": "00940395"
+  },
+  {
+    "course_id": "094222",
+    "name": "00940222 - \u05d4\u05e0\u05d3\u05e1\u05ea \u05de\u05e2\u05e8\u05db\u05d5\u05ea \u05de\u05d1\u05d5\u05e1\u05e1\u05ea \u05de\u05d5\u05d3\u05dc\u05d9\u05dd",
+    "data_value": "00940222"
+  },
+  {
+    "course_id": "094290",
+    "name": "00940290 - \u05de\u05e2\u05d1\u05d3\u05d4 \u05d1\u05d0\u05d9\u05e1\u05d5\u05e3 \u05d5\u05e0\u05d9\u05d4\u05d5\u05dc \u05e0\u05ea\u05d5\u05e0\u05d9\u05dd",
+    "data_value": "00940290"
+  },
+  {
+    "course_id": "094189",
+    "name": "00940189 - \u05e7\u05d3\u05dd \u05e4\u05e8\u05d5\u05d9\u05e7\u05d8 \u05ea\u05db\u05df, \u05d4\u05e0\u05d3\u05e1\u05ea \u05ea\u05e2\u05d5\"\u05e0",
+    "data_value": "00940189"
+  },
+  {
+    "course_id": "094333",
+    "name": "00940333 - \u05de\u05d5\u05d3\u05dc\u05d9\u05dd \u05d3\u05d9\u05e0\u05de\u05d9\u05d9\u05dd \u05d1\u05d7\u05e7\u05e8 \u05d1\u05d9\u05e6\u05d5\u05e2\u05d9\u05dd",
+    "data_value": "00940333"
+  },
+  {
+    "course_id": "094697",
+    "name": "00940697 - \u05e4\u05e8\u05d5\u05d9\u05e7\u05d8 \u05de\u05d7\u05e7\u05e8 \u05d1\u05de\u05d3\u05e2\u05d9 \u05d4\u05e7\u05d5\u05d2\u05e0\u05d9\u05e6\u05d9\u05d4",
+    "data_value": "00940697"
+  },
+  {
+    "course_id": "094314",
+    "name": "00940314 - \u05de\u05d5\u05d3\u05dc\u05d9\u05dd \u05e1\u05d8\u05d5\u05db\u05e1\u05d8\u05d9\u05d9\u05dd \u05d1\u05d7\u05e7\u05e8 \u05d1\u05e6\u05d5\u05e2\u05d9\u05dd",
+    "data_value": "00940314"
+  },
+  {
+    "course_id": "094312",
+    "name": "00940312 - \u05de\u05d5\u05d3\u05dc\u05d9\u05dd \u05d3\u05d8\u05e8\u05de\u05d9\u05e0\u05d9\u05e1\u05d8\u05d9\u05dd \u05d1\u05d7\u05e7\u05e8 \u05d1\u05d9\u05e6\u05d5\u05e2\u05d9\u05dd",
+    "data_value": "00940312"
+  },
+  {
+    "course_id": "014943",
+    "name": "00140943 - \u05de\u05e2\u05d1\u05d3\u05d4 \u05dc\u05d1\u05e7\u05e8\u05d4",
+    "data_value": "00140943"
+  },
+  {
+    "course_id": "014945",
+    "name": "00140945 - \u05e4\u05e8\u05d5\u05d9\u05e7\u05d8 \u05d1\u05d1\u05e7\u05e8\u05d4",
+    "data_value": "00140945"
+  },
+  {
+    "course_id": "207945",
+    "name": "02070945 - \u05ea\u05db\u05e0\u05d5\u05df \u05d5\u05e7\u05d9\u05d9\u05de\u05d5\u05ea",
+    "data_value": "02070945"
+  },
+  {
+    "course_id": "106942",
+    "name": "01060942 - \u05d0\u05e0\u05dc\u05d9\u05d6\u05d4 \u05e4\u05d5\u05e0\u05e7\u05e6\u05d9\u05d5\u05e0\u05dc\u05d9\u05ea",
+    "data_value": "01060942"
+  },
+  {
+    "course_id": "014940",
+    "name": "00140940 - \u05ea\u05d5\u05e4\u05e2\u05d5\u05ea \u05de\u05e2\u05d1\u05e8 \u05d1\u05de\u05e2\u05e8\u05db\u05d5\u05ea \u05d8\u05d1\u05e2\u05d9\u05d5\u05ea",
+    "data_value": "00140940"
+  },
+  {
+    "course_id": "014941",
+    "name": "00140941 - \u05d4\u05e0\u05d3\u05e1\u05ea \u05e0\u05d9\u05e7\u05d5\u05d6 \u05e2\u05d9\u05dc\u05d9 \u05d5\u05ea\u05ea \u05e7\u05e8\u05e7\u05e2\u05d9",
+    "data_value": "00140941"
+  },
+  {
+    "course_id": "206941",
+    "name": "02060941 - \u05e0\u05d5\u05e9\u05d0\u05d9\u05dd \u05d1\u05d1\u05d9\u05d5-\u05e2\u05d9\u05e6\u05d5\u05d1 \u05dc\u05e1\u05d1\u05d9\u05d1\u05d4 \u05d4\u05d1\u05e0\u05d5\u05d9\u05d4",
+    "data_value": "02060941"
+  },
+  {
+    "course_id": "206949",
+    "name": "02060949 - \u05e0.\u05e0. \u05d4\u05e2\u05d9\u05e8 \u05d4\u05e7\u05e4\u05d9\u05d8\u05dc\u05d9\u05e1\u05d8\u05d9\u05ea \u05d5\u05de\u05d3\u05d9\u05e0\u05ea \u05e0\u05d3\u05dc\u05df",
+    "data_value": "02060949"
+  },
+  {
+    "course_id": "095139",
+    "name": "00950139 - \u05e0\u05d9\u05d4\u05d5\u05dc \u05e4\u05e8\u05d5\u05d9\u05e7\u05d8\u05d9\u05dd",
+    "data_value": "00950139"
+  },
+  {
+    "course_id": "095111",
+    "name": "00950111 - \u05ea\u05db\u05df \u05de\u05e2\u05e8\u05db\u05d5\u05ea \u05d9\u05d9\u05e6\u05d5\u05e8",
+    "data_value": "00950111"
+  },
+  {
+    "course_id": "095296",
+    "name": "00950296 - \u05e9\u05d9\u05d8\u05d5\u05ea \u05d0\u05dc\u05d2\u05d1\u05e8\u05d9\u05d5\u05ea \u05d1\u05d4\u05e0\u05d3\u05e1\u05ea \u05e0\u05ea\u05d5\u05e0\u05d9\u05dd",
+    "data_value": "00950296"
+  },
+  {
+    "course_id": "095334",
+    "name": "00950334 - \u05e1\u05d9\u05de\u05d5\u05dc\u05e6\u05d9\u05d4-\u05de\u05d9\u05d3\u05d5\u05dc, \u05e0\u05d9\u05ea\u05d5\u05d7 \u05d5\u05d9\u05d9\u05e9\u05d5\u05de\u05d9\u05dd",
+    "data_value": "00950334"
+  },
+  {
+    "course_id": "278958",
+    "name": "02780958 - \u05de\u05d1\u05d5\u05d0 \u05dc\u05de\u05d8\u05d1\u05d5\u05dc\u05d5\u05de\u05d9\u05e7\u05d4",
+    "data_value": "02780958"
+  },
+  {
+    "course_id": "014952",
+    "name": "00140952 - \u05e1\u05e7\u05e8 \u05e7\u05e8\u05e7\u05e2\u05d5\u05ea - \u05de\u05e2\u05e8\u05db\u05d5\u05ea \u05de\u05d9\u05d3\u05e2",
+    "data_value": "00140952"
+  },
+  {
+    "course_id": "104952",
+    "name": "01040952 - \u05de\u05e2\u05e8\u05db\u05d5\u05ea \u05e1\u05e4\u05e8\u05ea\u05d9\u05d5\u05ea \u05d5\u05de\u05d1\u05e0\u05d4 \u05d4\u05de\u05d7\u05e9\u05d1",
+    "data_value": "01040952"
+  },
+  {
+    "course_id": "278953",
+    "name": "02780953 - \u05e0\u05d5\u05e9\u05d0\u05d9\u05dd \u05e2\u05d3\u05db\u05e0\u05d9\u05d9\u05dd \u05d1\u05de\u05d3\u05e2\u05d9 \u05d4\u05e8\u05e4\u05d5\u05d0\u05d4",
+    "data_value": "02780953"
+  },
+  {
+    "course_id": "278959",
+    "name": "02780959 - \u05e0\u05d5\u05e9\u05d0\u05d9\u05dd \u05de\u05ea\u05e7\u05d3\u05de\u05d9\u05dd \u05d1\u05d1\u05d9\u05d5\u05dc\u05d5\u05d2\u05d9\u05d4 \u05d7\u05d9\u05e9\u05d5\u05d1\u05d9\u05ea",
+    "data_value": "02780959"
+  },
+  {
+    "course_id": "207953",
+    "name": "02070953 - \u05ea\u05db\u05e0\u05d5\u05df \u05d5\u05e0\u05d9\u05d4\u05d5\u05dc \u05d4\u05e1\u05d1\u05d9\u05d1\u05d4 \u05d4\u05d7\u05d5\u05e4\u05d9\u05ea \u05d5\u05d4\u05d9\u05de\u05d9\u05ea",
+    "data_value": "02070953"
+  },
+  {
+    "course_id": "046956",
+    "name": "00460956 - \u05e0\u05d5\u05e9\u05d0\u05d9\u05dd \u05e0\u05d1\u05d7\u05e8\u05d9\u05dd \u05d1\u05d4\u05e0\u05d3\u05e1\u05ea \u05de\u05d7\u05e9\u05d1\u05d9\u05dd : \u05d0\u05e0\u05dc\u05d9\u05d6\u05ea \u05d6\u05de\u05e0\u05d9\u05dd \u05e1\u05d8\u05d8\u05d9\u05ea, \u05de\u05d9\u05d3\u05d5\u05dc \u05d5\u05d0\u05d5\u05e4\u05d8\u05d9\u05de\u05d9\u05d6\u05e6\u05d9\u05d4",
+    "data_value": "00460956"
+  },
+  {
+    "course_id": "096120",
+    "name": "00960120 - \u05d4\u05e0\u05d3\u05e1\u05ea \u05d0\u05d9\u05db\u05d5\u05ea",
+    "data_value": "00960120"
+  },
+  {
+    "course_id": "096553",
+    "name": "00960553 - \u05db\u05dc\u05db\u05dc\u05ea \u05e1\u05d1\u05d9\u05d1\u05d4",
+    "data_value": "00960553"
+  },
+  {
+    "course_id": "096807",
+    "name": "00960807 - \u05d9\u05d6\u05de\u05d5\u05ea \u05d7\u05d1\u05e8\u05ea\u05d9\u05ea",
+    "data_value": "00960807"
+  },
+  {
+    "course_id": "096450",
+    "name": "00960450 - \u05d4\u05e9\u05d5\u05d5\u05d0\u05d5\u05ea \u05de\u05e8\u05d5\u05d1\u05d5\u05ea",
+    "data_value": "00960450"
+  },
+  {
+    "course_id": "096411",
+    "name": "00960411 - \u05dc\u05de\u05d9\u05d3\u05d4 \u05d7\u05d9\u05e9\u05d5\u05d1\u05d9\u05ea 1",
+    "data_value": "00960411"
+  },
+  {
+    "course_id": "096600",
+    "name": "00960600 - \u05d4\u05ea\u05e0\u05d4\u05d2\u05d5\u05ea \u05d0\u05e8\u05d2\u05d5\u05e0\u05d9\u05ea",
+    "data_value": "00960600"
+  },
+  {
+    "course_id": "096265",
+    "name": "00960265 - \u05d0\u05dc\u05d2\u05d5\u05e8\u05d9\u05ea\u05de\u05d9\u05dd \u05d1\u05dc\u05d5\u05d2\u05d9\u05e7\u05d4",
+    "data_value": "00960265"
+  },
+  {
+    "course_id": "096414",
+    "name": "00960414 - \u05e1\u05d8\u05d8\u05d9\u05e1\u05d8\u05d9\u05e7\u05d4 \u05ea\u05e2\u05e9\u05d9\u05d9\u05ea\u05d9\u05ea",
+    "data_value": "00960414"
+  },
+  {
+    "course_id": "096250",
+    "name": "00960250 - \u05de\u05e2\u05e8\u05db\u05d5\u05ea \u05de\u05d9\u05d3\u05e2 \u05de\u05d1\u05d5\u05d6\u05e8\u05d5\u05ea",
+    "data_value": "00960250"
+  },
+  {
+    "course_id": "096475",
+    "name": "00960475 - \u05ea\u05db\u05e0\u05d5\u05df \u05e0\u05d9\u05e1\u05d5\u05d9\u05d9\u05dd \u05d5\u05e0\u05d9\u05ea\u05d5\u05d7\u05dd",
+    "data_value": "00960475"
+  },
+  {
+    "course_id": "096275",
+    "name": "00960275 - \u05d4\u05d2\u05d5\u05e8\u05dd \u05d4\u05d0\u05e0\u05d5\u05e9\u05d9 \u05d1\u05d0\u05d9\u05e1\u05d5\u05e3 \u05e0\u05ea\u05d5\u05e0\u05d9\u05dd",
+    "data_value": "00960275"
+  },
+  {
+    "course_id": "096235",
+    "name": "00960235 - \u05de\u05e2\u05e8\u05db\u05d5\u05ea \u05e0\u05d1\u05d5\u05e0\u05d5\u05ea \u05d0\u05d9\u05e0\u05d8\u05e8\u05d0\u05e7\u05d8\u05d9\u05d1\u05d9\u05d5\u05ea",
+    "data_value": "00960235"
+  },
+  {
+    "course_id": "096210",
+    "name": "00960210 - \u05d9\u05e1\u05d5\u05d3\u05d5\u05ea \u05d1\u05d9\u05e0\u05d4 \u05de\u05dc\u05d0\u05db\u05d5\u05ea\u05d9\u05ea \u05d5\u05d9\u05e9\u05d5\u05de\u05d9\u05d4",
+    "data_value": "00960210"
+  },
+  {
+    "course_id": "096570",
+    "name": "00960570 - \u05ea\u05d5\u05e8\u05ea \u05d4\u05de\u05e9\u05d7\u05e7\u05d9\u05dd \u05d5\u05d4\u05ea\u05e0\u05d4\u05d2\u05d5\u05ea \u05db\u05dc\u05db\u05dc\u05d9\u05ea",
+    "data_value": "00960570"
+  },
+  {
+    "course_id": "096578",
+    "name": "00960578 - \u05d1\u05d7\u05d9\u05e8\u05d4 \u05d7\u05d1\u05e8\u05ea\u05d9\u05ea \u05d5\u05d4\u05d7\u05dc\u05d8\u05d5\u05ea \u05de\u05e9\u05d5\u05ea\u05e4\u05d5\u05ea",
+    "data_value": "00960578"
+  },
+  {
+    "course_id": "096609",
+    "name": "00960609 - \u05de\u05d5\u05d3\u05dc\u05d9\u05dd \u05db\u05de\u05d5\u05ea\u05d9\u05d9\u05dd \u05d1\u05de\u05d3\u05e2\u05d9 \u05d4\u05d4\u05ea\u05e0\u05d4\u05d2\u05d5\u05ea",
+    "data_value": "00960609"
+  },
+  {
+    "course_id": "096231",
+    "name": "00960231 - \u05de\u05d5\u05d3\u05dc\u05d9\u05dd \u05de\u05ea\u05de\u05d8\u05d9\u05d9\u05dd \u05d1\u05d0\u05d7\u05d6\u05d5\u05e8 \u05de\u05d9\u05d3\u05e2 \u05de\u05ea\u05e7\u05d3\u05dd",
+    "data_value": "00960231"
+  },
+  {
+    "course_id": "096606",
+    "name": "00960606 - \u05db\u05dc\u05db\u05dc\u05d4 \u05d4\u05ea\u05e0\u05d4\u05d2\u05d5\u05ea\u05d9\u05ea \u05d1\u05e1\u05d1\u05d9\u05d1\u05d4 \u05d8\u05db\u05e0\u05d5\u05dc\u05d5\u05d2\u05d9\u05ea",
+    "data_value": "00960606"
+  },
+  {
+    "course_id": "096290",
+    "name": "00960290 - \u05e0\u05d5\u05e9\u05d0\u05d9\u05dd \u05e0\u05d1\u05d7\u05e8\u05d9\u05dd \u05d1\u05d4\u05e0\u05d3\u05e1\u05ea \u05e0\u05ea\u05d5\u05e0\u05d9\u05dd \u05d5\u05de\u05d9\u05d3\u05e2",
+    "data_value": "00960290"
+  },
+  {
+    "course_id": "206964",
+    "name": "02060964 - \u05ea\u05d4\u05dc\u05d9\u05db\u05d9 \u05ea\u05db\u05e0\u05d5\u05df \u05d5\u05d1\u05e0\u05d9\u05d4",
+    "data_value": "02060964"
+  },
+  {
+    "course_id": "206963",
+    "name": "02060963 - \u05ea\u05d7\u05d9\u05e7\u05ea \u05d4\u05ea\u05db\u05e0\u05d5\u05df \u05d5\u05d4\u05d1\u05e0\u05d9\u05d4",
+    "data_value": "02060963"
+  },
+  {
+    "course_id": "048966",
+    "name": "00480966 - \u05de\u05e2\u05d1\u05d3\u05d4 \u05d1\u05de\u05d9\u05e7\u05e8\u05d5\u05d0\u05dc\u05e7\u05d8\u05e8\u05d5\u05e0\u05d9\u05e7\u05d4",
+    "data_value": "00480966"
+  },
+  {
+    "course_id": "278960",
+    "name": "02780960 - \u05d1\u05d9\u05e0\u05d4 \u05de\u05dc\u05d0\u05db\u05d5\u05ea\u05d9\u05ea \u05db\u05db\u05dc\u05d9 \u05e2\u05d6\u05e8 \u05d1\u05e9\u05dc\u05d1\u05d9 \u05de\u05d7\u05e7\u05e8",
+    "data_value": "02780960"
+  },
+  {
+    "course_id": "097414",
+    "name": "00970414 - \u05e1\u05d8\u05d8\u05d9\u05e1\u05d8\u05d9\u05e7\u05d4 2",
+    "data_value": "00970414"
+  },
+  {
+    "course_id": "097209",
+    "name": "00970209 - \u05dc\u05de\u05d9\u05d3\u05d4 \u05d7\u05d9\u05e9\u05d5\u05d1\u05d9\u05ea 2",
+    "data_value": "00970209"
+  },
+  {
+    "course_id": "097622",
+    "name": "00970622 - \u05de\u05d1\u05d5\u05d0 \u05dc\u05de\u05d3\u05e2\u05d9 \u05d4\u05e7\u05d5\u05d2\u05e0\u05d9\u05e6\u05d9\u05d4",
+    "data_value": "00970622"
+  },
+  {
+    "course_id": "097217",
+    "name": "00970217 - \u05e1\u05de\u05d9\u05e0\u05e8 \u05d1\u05e2\u05d9\u05d1\u05d5\u05d3 \u05e9\u05e4\u05d4 \u05d8\u05d1\u05e2\u05d9\u05ea",
+    "data_value": "00970217"
+  },
+  {
+    "course_id": "097317",
+    "name": "00970317 - \u05ea\u05d5\u05e8\u05ea \u05d4\u05de\u05e9\u05d7\u05e7\u05d9\u05dd \u05d4\u05e9\u05d9\u05ea\u05d5\u05e4\u05d9\u05d9\u05dd",
+    "data_value": "00970317"
+  },
+  {
+    "course_id": "097910",
+    "name": "00970910 - \u05e0.\u05e0. \u05d1\u05d0\u05d9\u05e0\u05d8\u05d2\u05e8\u05e6\u05d9\u05d9\u05ea \u05d0\u05d3\u05dd-\u05de\u05e2\u05e8\u05db\u05ea",
+    "data_value": "00970910"
+  },
+  {
+    "course_id": "097334",
+    "name": "00970334 - \u05e9\u05d9\u05d8\u05d5\u05ea \u05d0\u05dc\u05d2\u05d1\u05e8\u05d9\u05d5\u05ea \u05dc\u05ea\u05db\u05e0\u05d5\u05ea \u05d1\u05e9\u05dc\u05de\u05d9\u05dd",
+    "data_value": "00970334"
+  },
+  {
+    "course_id": "097247",
+    "name": "00970247 - \u05d0\u05d9\u05e0\u05d8\u05e8\u05e0\u05d8 \u05e9\u05dc \u05d4\u05d3\u05d1\u05e8\u05d9\u05dd: \u05d8\u05db\u05e0\u05d5\u05dc\u05d5\u05d2\u05d9\u05d5\u05ea",
+    "data_value": "00970247"
+  },
+  {
+    "course_id": "097252",
+    "name": "00970252 - \u05ea\u05db\u05e0\u05d5\u05df \u05d0\u05d5\u05d8\u05d5\u05e0\u05d5\u05de\u05d9 \u05d1\u05ea\u05e0\u05d0\u05d9 \u05d0\u05d9 \u05d5\u05d3\u05d0\u05d5\u05ea",
+    "data_value": "00970252"
+  },
+  {
+    "course_id": "097249",
+    "name": "00970249 - \u05dc\u05de\u05d9\u05d3\u05ea \u05de\u05db\u05d5\u05e0\u05d4 \u05d1\u05e7\u05d1\u05dc\u05ea \u05d4\u05d7\u05dc\u05d8\u05d5\u05ea \u05e1\u05d3\u05e8\u05ea\u05d9\u05ea",
+    "data_value": "00970249"
+  },
+  {
+    "course_id": "097201",
+    "name": "00970201 - \u05e2\u05d9\u05d1\u05d5\u05d3 \u05d0\u05d5\u05ea\u05d5\u05ea \u05d3\u05d9\u05d1\u05d5\u05e8 \u05e2\u05dd \u05dc\u05de\u05d9\u05d3\u05d4 \u05e2\u05de\u05d5\u05e7\u05d4",
+    "data_value": "00970201"
+  },
+  {
+    "course_id": "097401",
+    "name": "00970401 - \u05e0\u05d5\u05e9\u05d0\u05d9\u05dd \u05e0\u05d1\u05d7\u05e8\u05d9\u05dd \u05d1\u05d4\u05e1\u05ea\u05d1\u05e8\u05d5\u05ea: \u05e4\u05e8\u05e7\u05d5\u05dc\u05e6\u05d9\u05d4",
+    "data_value": "00970401"
+  },
+  {
+    "course_id": "097702",
+    "name": "00970702 - \u05e1\u05de\u05d9\u05e0\u05e8 \u05d1\u05d1\u05e2\u05d9\u05d5\u05ea \u05de\u05e0\u05d9\u05d9\u05d4 \u05dc\u05e0\u05d9\u05d4\u05d5\u05dc \u05e0\u05ea\u05d5\u05e0\u05d9\u05dd",
+    "data_value": "00970702"
+  },
+  {
+    "course_id": "097325",
+    "name": "00970325 - \u05ea\u05d9\u05d0\u05d5\u05e8\u05d9\u05d4 \u05d5\u05e9\u05d9\u05d8\u05d5\u05ea \u05d1\u05d0\u05d5\u05e4\u05d8\u05d9\u05de\u05d9\u05d6\u05e6\u05d9\u05d4 \u05d3\u05dc\u05d9\u05dc\u05d4",
+    "data_value": "00970325"
+  },
+  {
+    "course_id": "209970",
+    "name": "02090970 - \u05e1\u05de\u05d9\u05e0\u05e8 \u05de\u05d7\u05e7\u05e8 \u05d0\u05d9\u05e9\u05d9",
+    "data_value": "02090970"
+  },
+  {
+    "course_id": "014978",
+    "name": "00140978 - \u05d9\u05e1\u05d5\u05d3\u05d5\u05ea \u05d4\u05d0\u05e7\u05d5\u05dc\u05d5\u05d2\u05d9\u05d4",
+    "data_value": "00140978"
+  },
+  {
+    "course_id": "014977",
+    "name": "00140977 - \u05de\u05d1\u05d5\u05d0 \u05dc\u05ea\u05d4\u05dc\u05d9\u05db\u05d9 \u05d6\u05e8\u05d9\u05de\u05d4 \u05d5\u05d6\u05d9\u05d4\u05d5\u05dd \u05d1\u05e7\u05e8\u05e7\u05e2",
+    "data_value": "00140977"
+  },
+  {
+    "course_id": "206973",
+    "name": "02060973 - \u05db\u05e9\u05d0\u05e8\u05db\u05d9\u05d8\u05e7\u05d8\u05d5\u05e8\u05d4 \u05e4\u05d5\u05d2\u05e9\u05ea \u05ea\u05d0\u05d5\u05e8\u05d9\u05d5\u05ea \u05de\u05e8\u05d7\u05d1",
+    "data_value": "02060973"
+  },
+  {
+    "course_id": "206972",
+    "name": "02060972 - \u05e9\u05d9\u05e0\u05d5\u05d9\u05d9 \u05d0\u05e7\u05dc\u05d9\u05dd: \u05de\u05d3\u05e2 \u05de\u05d3\u05d9\u05e0\u05d9\u05d5\u05ea \u05d5\u05ea\u05db\u05e0\u05d5\u05df",
+    "data_value": "02060972"
+  },
+  {
+    "course_id": "098602",
+    "name": "00980602 - \u05d4\u05ea\u05e0\u05d4\u05d2\u05d5\u05ea \u05d1\u05d0\u05e8\u05d2\u05d5\u05e0\u05d9\u05dd",
+    "data_value": "00980602"
+  },
+  {
+    "course_id": "098413",
+    "name": "00980413 - \u05ea\u05d4\u05dc\u05d9\u05db\u05d9\u05dd \u05e1\u05d8\u05d5\u05db\u05e1\u05d8\u05d9\u05d9\u05dd",
+    "data_value": "00980413"
+  },
+  {
+    "course_id": "098425",
+    "name": "00980425 - \u05e1\u05de\u05d9\u05e0\u05e8 \u05d1\u05e1\u05d3\u05e8\u05d5\u05ea \u05e2\u05ea\u05d9\u05d5\u05ea",
+    "data_value": "00980425"
+  },
+  {
+    "course_id": "098666",
+    "name": "00980666 - \u05de\u05d3\u05e2\u05d9 \u05d4\u05e7\u05d5\u05d2\u05e0\u05d9\u05e6\u05d9\u05d4 \u05d4\u05de\u05ea\u05e7\u05d3\u05de\u05d9\u05dd",
+    "data_value": "00980666"
+  },
+  {
+    "course_id": "098123",
+    "name": "00980123 - \u05e0\u05d9\u05d4\u05d5\u05dc \u05e4\u05e8\u05d5\u05d9\u05e7\u05d8\u05d9\u05dd \u05dc\u05d4\u05e0\u05d3\u05e1\u05ea \u05de\u05e2\u05e8\u05db\u05d5\u05ea",
+    "data_value": "00980123"
+  },
+  {
+    "course_id": "098610",
+    "name": "00980610 - \u05d4\u05d2\u05d5\u05e8\u05dd \u05d4\u05d0\u05e0\u05d5\u05e9\u05d9 \u05d1\u05de\u05e2\u05e8\u05db\u05d5\u05ea \u05d8\u05db\u05e0\u05d5\u05dc\u05d5\u05d2\u05d9\u05d5\u05ea",
+    "data_value": "00980610"
+  },
+  {
+    "course_id": "098291",
+    "name": "00980291 - \u05e4\u05e8\u05e7\u05d8\u05d9\u05e7\u05d5\u05dd (\u05d4\u05ea\u05e0\u05e1\u05d5\u05ea \u05de\u05e2\u05e9\u05d9\u05ea) \u05d1\u05d0\u05e8\u05d2\u05d5\u05e0\u05d9\u05dd",
+    "data_value": "00980291"
+  },
+  {
+    "course_id": "098603",
+    "name": "00980603 - \u05d0\u05d9\u05e1\u05d5\u05e3 \u05e0\u05ea\u05d5\u05e0\u05d9\u05dd \u05d5\u05de\u05d7\u05e7\u05e8 \u05d1\u05de\u05d3\u05e2\u05d9 \u05d4\u05d4\u05ea\u05e0\u05d4\u05d2\u05d5\u05ea",
+    "data_value": "00980603"
+  },
+  {
+    "course_id": "098310",
+    "name": "00980310 - \u05d7\u05e7\u05e8 \u05d1\u05d9\u05e6\u05d5\u05e2\u05d9\u05dd \u05d5\u05d0\u05d5\u05e4\u05d8\u05d9\u05de\u05d9\u05d6\u05e6\u05d9\u05d4 \u05dc\u05de\u05d4\u05e0\u05d3\u05e1\u05d9 \u05de\u05e2\u05e8\u05db\u05d5\u05ea",
+    "data_value": "00980310"
+  },
+  {
+    "course_id": "048980",
+    "name": "00480980 - \u05ea\u05d9\u05db\u05e0\u05d5\u05df \u05d5\u05e0\u05d9\u05d4\u05d5\u05dc \u05e8\u05e9\u05ea\u05d5\u05ea \u05ea\u05e7\u05e9\u05d5\u05e8\u05ea \u05dc\u05d0 \u05e9\u05d9\u05ea\u05d5\u05e4\u05d9\u05d5\u05ea",
+    "data_value": "00480980"
+  }
+]
