@@ -540,7 +540,7 @@ if __name__ == "__main__":
 
 
 
-    folder_path = r"C:\Users\razbi\PycharmProjects\cheesespoon\cheese-spoon\scraping\scraped_courses" # Current directory, change as needed
+    folder_path = r"/cheese-spoon/scraping/scraped_courses"  # Current directory, change as needed
 
     # Debug mode: process only 3 courses with detailed output
     # df = main(folder_path, max_courses=30, debug=True)

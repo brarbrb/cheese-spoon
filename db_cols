@@ -1,4 +1,0 @@
-course id(float),course descripton(string),credits(float),kdamim(float),moed_a(DATE),
-moed_b(DATE),general_rating(float),workload_rating(float),
-LLM:
-reviews_summary(string),topics(string array),prefrence_tags(string array) example: exam/non exam/project
