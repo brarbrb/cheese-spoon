@@ -47,11 +47,13 @@ def get_embedding_model():
 def embed_query(query):
     device= get_device()
     model = get_embedding_model()
-    embedd_query = model.encode(query,
-                              convert_to_numpy=True,
-                              show_progress_bar=False,
-                              device=device,
-                              normalize_embeddings=True)
+    embedd_query = model.encode(
+        "query: " + query,
+        convert_to_numpy=True,
+        show_progress_bar=False,
+        device=device,
+        normalize_embeddings=True
+    )
     return embedd_query
 
 def check_prerequisites(courses_list,prerequisites):
@@ -70,11 +72,22 @@ def check_prerequisites(courses_list,prerequisites):
 def filter_according_to_requirements_and_untaken_and_prereq(response,courses_list,no_exam,min_credits):
     # 3. Filter Locally in Python
     # Convert list to set for super-fast lookups (O(1) speed)
-    excluded_set = set(courses_list)
+    excluded_set = set()
+    for course_id in courses_list:
+        # Normalize: remove leading zeros and store all variants
+        print(f'Course id is {str(course_id)}')
+        normalized_id = str(course_id).lstrip('0') or '0'  # Keep at least one '0' if all zeros
+        print(f'normalized id is {str(normalized_id)}')
+        excluded_set.add(normalized_id)
+        excluded_set.add('0' + normalized_id)
+        excluded_set.add('00' + normalized_id)
+        excluded_set.add(str(course_id))  # Also add original format
+
+    print(f"[DEBUG] Excluded set: {excluded_set}")
     filtered_courses = []
 
     for match in response.matches:
-        print(f'title: {match["metadata"]["title"]} | pre : {json.loads(match["metadata"]["prerequisites"])} len pre {len(json.loads(match["metadata"]["prerequisites"]))}')
+        # print(f'ID: {match.id}, title: {match["metadata"]["title"]} | pre : {json.loads(match["metadata"]["prerequisites"])} len pre {len(json.loads(match["metadata"]["prerequisites"]))}')
         prereq= json.loads(match["metadata"]["prerequisites"])
 
         can_take_it = check_prerequisites(courses_list,prereq)
@@ -84,50 +97,98 @@ def filter_according_to_requirements_and_untaken_and_prereq(response,courses_lis
                 continue
             if min_credits > match["metadata"]["credits"]:
                 continue
-            if match.ID not in excluded_set:
-                grades_dict=json.loads(match["metadata"]["avg_grades"])
 
-                if len(grades_dict)>0:
-                    average = sum(grades_dict.values()) / len(grades_dict)
-                else:
-                    average=DEFAULT_AVG_GRADE
 
-                # Prepare the data object
 
-                course_data = match.metadata
-                course_data['ID'] = match.id
-                course_data["semantic_score"] = match.score
-                course_data["avg_grade_all_sem"] = average
+            # Check if already taken
+            if str(match.id) in excluded_set:
+                print(f'[DEBUG] EXCLUDED: {match.id} (normalized: {match.id})')
+                continue
 
-                filtered_courses.append(course_data)
+            grades_dict=json.loads(match["metadata"]["avg_grades"])
+
+            if len(grades_dict)>0:
+                average = sum(grades_dict.values()) / len(grades_dict)
+            else:
+                average=DEFAULT_AVG_GRADE
+
+            # Prepare the data object
+
+            course_data = match.metadata
+            course_data['ID'] = match.id
+            course_data["semantic_score"] = match.score
+            course_data["avg_grade_all_sem"] = average
+
+            filtered_courses.append(course_data)
         else:
-            print(f'Cannot take {match["metadata"]["title"]}')
+            print(f'Cannot take {match["id"]}')
     return filtered_courses
 
-def get_all_untaken_courses_with_requirements(semester_name="WINTER_2025_2026",courses_list=[],no_exam=False,min_credits=0,user_query=""):
-    # Get all untaken courses with filters and semantic search
-    # Retrive all courses that are not in the student's completed courses list
 
-    index = get_index_by_semester(semester_name=semester_name)
-    # 1. Get index dimensions (needed to create the dummy vector)
-    stats = index.describe_index_stats()
-    if user_query == "":
-        embedded_query = [0.0] * stats['dimension'] # dummy vector (no user query)
-    else:
-        embedded_query = embed_query(user_query)
+def get_all_untaken_courses_with_requirements(semester_name="WINTER_2025_2026", courses_list=[], no_exam=False,
+                                              min_credits=0, user_query=""):
+    print(f"[DEBUG] Starting query with: user_query='{user_query}'")
 
-    # 2. Get EVERYTHING (The "Dump")
-    # We set top_k high (max 10,000) to ensure we grab the whole semester catalog but according to semantic search
-    response = index.query(
-        vector=embedded_query,
-        top_k=10000,
-        include_metadata=True
-    )
+    try:
+        # Get index
+        print(f"[DEBUG] Getting index for semester: {semester_name}")
+        index = get_index_by_semester(semester_name=semester_name)
+        print(f"[DEBUG] Index obtained successfully")
 
-    filtered_courses = filter_according_to_requirements_and_untaken_and_prereq(response,courses_list,no_exam,min_credits)
-    filtered_courses = pd.DataFrame(filtered_courses)
+        # Get index dimensions
+        print(f"[DEBUG] Describing index stats...")
+        stats = index.describe_index_stats()
+        print(f"[DEBUG] Index stats: {stats}")
 
-    return filtered_courses
+        # Create query vector
+        if user_query == "":
+            print(f"[DEBUG] Creating dummy vector of dimension {stats['dimension']}")
+            embedded_query = [0.0] * stats['dimension']
+        else:
+            print(f"[DEBUG] Embedding query: '{user_query}'")
+            embedded_query = embed_query(user_query)
+            print(
+                f"[DEBUG] Embedded query shape: {embedded_query.shape if hasattr(embedded_query, 'shape') else len(embedded_query)}")
+            # Convert numpy array to list if needed
+            if hasattr(embedded_query, 'tolist'):
+                embedded_query = embedded_query.tolist()
+
+        print(f"[DEBUG] Embedded query dimension: {len(embedded_query)}")
+
+        # Query Pinecone
+        print(f"[DEBUG] Querying Pinecone with top_k=10000...")
+        try:
+            response = index.query(
+                vector=embedded_query,
+                top_k=10000,
+                include_metadata=True,
+                timeout=30  # Add timeout
+            )
+            print(f"[DEBUG] Query successful! Got {len(response.matches)} matches")
+        except Exception as query_error:
+            print(f"[ERROR] Pinecone query failed: {query_error}")
+            print(f"[ERROR] Query error type: {type(query_error)}")
+            raise
+
+        # Filter results
+        print(f"[DEBUG] Filtering results...")
+        filtered_courses = filter_according_to_requirements_and_untaken_and_prereq(
+            response, courses_list, no_exam, min_credits
+        )
+        print(f"[DEBUG] Filtered to {len(filtered_courses)} courses")
+
+        # Convert to DataFrame
+        filtered_courses = pd.DataFrame(filtered_courses)
+        print(f"[DEBUG] Returning DataFrame with shape: {filtered_courses.shape}")
+
+        return filtered_courses
+
+    except Exception as e:
+        print(f"[ERROR] Exception in get_all_untaken_courses_with_requirements: {e}")
+        print(f"[ERROR] Exception type: {type(e)}")
+        import traceback
+        traceback.print_exc()
+        raise
 
 def rerank(df,semantic_weight=0.2,credits_weight=0.2,avg_grade_weight=0.2,workload_rating_weight=0.2,general_rating_weight=0.2):
 
@@ -172,14 +233,16 @@ def rerank(df,semantic_weight=0.2,credits_weight=0.2,avg_grade_weight=0.2,worklo
 
     return df_ranked
 def recommend_courses(semester_name="WINTER_2025_2026",courses_list=[],no_exam=False,min_credits=0,user_query="",semantic_weight=0.2,credits_weight=0.2,avg_grade_weight=0.2,workload_rating_weight=0.2,general_rating_weight=0.2):
+    print(f'User query {user_query}')
     print(f'Before rerank')
+    print(f'Courses: {len(courses_list)}')
+    print(f'courses {courses_list}')
     filtered_courses = get_all_untaken_courses_with_requirements(semester_name,courses_list,no_exam,min_credits,user_query)
 
-    print(filtered_courses.head(10)[['title','avg_grade_all_sem',"prerequisites"]])
-    print('*'*100)
-    print('after rerank')
+    # print(filtered_courses.head(10)[['title','avg_grade_all_sem',"prerequisites"]])
+
     reranked_courses = rerank(filtered_courses,semantic_weight,credits_weight,avg_grade_weight,workload_rating_weight,general_rating_weight)
 
-    print(reranked_courses.head(10)[['title','avg_grade_all_sem',"prerequisites"]])
+    # print(reranked_courses.head(10)[['title','avg_grade_all_sem',"prerequisites"]])
     return reranked_courses
 # recommend_courses(courses_list=['02340221'])
