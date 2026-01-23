@@ -54,30 +54,54 @@ def embed_query(query):
                               normalize_embeddings=True)
     return embedd_query
 
+def check_prerequisites(courses_list,prerequisites):
+    if len(prerequisites) == 0:
+        return True
+    # Convert to set for O(1) lookup
+    completed_set = set(courses_list)
 
-def filter_according_to_requirements_and_untaken(response,courses_list,no_exam,min_credits):
+    # Check each prerequisite combination
+    for combo in prerequisites:
+        # Check if ALL courses in this combo are completed
+        if all(course in completed_set for course in combo):
+            return True  # Found a satisfied combo!
+
+    return False  # No combo was satisfied
+def filter_according_to_requirements_and_untaken_and_prereq(response,courses_list,no_exam,min_credits):
     # 3. Filter Locally in Python
     # Convert list to set for super-fast lookups (O(1) speed)
     excluded_set = set(courses_list)
     filtered_courses = []
-    for match in response.matches:
-        # match.id is the Course ID (assuming you used it as the vector ID)
-        if no_exam == True and match["metadata"]["moed_a"] != "":
-            continue
-        if min_credits > match["metadata"]["credits"]:
-            continue
-        if match.ID not in excluded_set:
-            grades_dict=json.loads(match["metadata"]["avg_grades"])
-            if len(grades_dict)>0:
-                average = sum(grades_dict.values()) / len(grades_dict)
-            else:
-                average=DEFAULT_AVG_GRADE
 
-            # Prepare the data object
-            course_data = match.metadata
-            course_data['ID'] = match.id
-            course_data["Avg_grade_all_sem"] = average
-            filtered_courses.append(course_data)
+    for match in response.matches:
+        print(f'title: {match["metadata"]["title"]} | pre : {json.loads(match["metadata"]["prerequisites"])} len pre {len(json.loads(match["metadata"]["prerequisites"]))}')
+        prereq= json.loads(match["metadata"]["prerequisites"])
+
+        can_take_it = check_prerequisites(courses_list,prereq)
+        if can_take_it:
+            # match.id is the Course ID (assuming you used it as the vector ID)
+            if no_exam == True and match["metadata"]["moed_a"] != "":
+                continue
+            if min_credits > match["metadata"]["credits"]:
+                continue
+            if match.ID not in excluded_set:
+                grades_dict=json.loads(match["metadata"]["avg_grades"])
+
+                if len(grades_dict)>0:
+                    average = sum(grades_dict.values()) / len(grades_dict)
+                else:
+                    average=DEFAULT_AVG_GRADE
+
+                # Prepare the data object
+
+                course_data = match.metadata
+                course_data['ID'] = match.id
+                course_data["semantic_score"] = match.score
+                course_data["avg_grade_all_sem"] = average
+
+                filtered_courses.append(course_data)
+        else:
+            print(f'Cannot take {match["metadata"]["title"]}')
     return filtered_courses
 
 def get_all_untaken_courses_with_requirements(semester_name="WINTER_2025_2026",courses_list=[],no_exam=False,min_credits=0,user_query=""):
@@ -100,15 +124,62 @@ def get_all_untaken_courses_with_requirements(semester_name="WINTER_2025_2026",c
         include_metadata=True
     )
 
-    filtered_courses = filter_according_to_requirements_and_untaken(response,courses_list,no_exam,min_credits)
+    filtered_courses = filter_according_to_requirements_and_untaken_and_prereq(response,courses_list,no_exam,min_credits)
     filtered_courses = pd.DataFrame(filtered_courses)
 
     return filtered_courses
 
-def rerank(df,semantic_weight=0.2,credits_weight=0.2,avg_grade_weight=0.2,workload_rating=0.2,general_rating=0.2):
+def rerank(df,semantic_weight=0.2,credits_weight=0.2,avg_grade_weight=0.2,workload_rating_weight=0.2,general_rating_weight=0.2):
+
+    if df.empty:
+        return df
+
     max_credits = df["credits"].max()
+    # Create a copy to avoid modifying original
+    df_ranked = df.copy()
 
-# def recommend_courses(semester_name,courses_list,no_exam=False,min_credits=0,user_query=""):
-#     filtered_courses = get_all_untaken_courses_with_requirements(semester_name,courses_list,no_exam=False,min_credits=0,user_query="")
+    # Normalize semantic score (assuming it's already 0-1 from Pinecone)
+    # If score doesn't exist (no semantic search), default to 0
+    semantic_score = df_ranked["semantic_score"]
 
-get_all_untaken_courses_with_requirements()
+    # Normalize credits (divide by max)
+    max_credits = df_ranked['credits'].max()
+    if max_credits > 0:
+        credits_normalized = df_ranked['credits'] / max_credits
+    else:
+        credits_normalized = 0
+
+    # Normalize avg_grade (divide by 100)
+    avg_grade_normalized = df_ranked['avg_grade_all_sem'] / 100
+
+    # Normalize workload_rating (divide by 5)
+    workload_normalized = df_ranked['workload_rating'] / 5
+
+    # Normalize general_rating (divide by 5)
+    general_rating_normalized = df_ranked['general_rating'] / 5
+
+    # Calculate combined score
+    df_ranked['combined_score'] = (
+            semantic_weight * semantic_score +
+            credits_weight * credits_normalized +
+            avg_grade_weight * avg_grade_normalized +
+            workload_rating_weight * workload_normalized +
+            general_rating_weight * general_rating_normalized
+    )
+
+    # Sort by combined score (descending - higher is better)
+    df_ranked = df_ranked.sort_values('combined_score', ascending=False).reset_index(drop=True)
+
+    return df_ranked
+def recommend_courses(semester_name="WINTER_2025_2026",courses_list=[],no_exam=False,min_credits=0,user_query="",semantic_weight=0.2,credits_weight=0.2,avg_grade_weight=0.2,workload_rating_weight=0.2,general_rating_weight=0.2):
+    print(f'Before rerank')
+    filtered_courses = get_all_untaken_courses_with_requirements(semester_name,courses_list,no_exam,min_credits,user_query)
+
+    print(filtered_courses.head(10)[['title','avg_grade_all_sem',"prerequisites"]])
+    print('*'*100)
+    print('after rerank')
+    reranked_courses = rerank(filtered_courses,semantic_weight,credits_weight,avg_grade_weight,workload_rating_weight,general_rating_weight)
+
+    print(reranked_courses.head(10)[['title','avg_grade_all_sem',"prerequisites"]])
+
+# recommend_courses(courses_list=['02340221'])
