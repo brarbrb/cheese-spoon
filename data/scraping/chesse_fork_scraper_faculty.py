@@ -746,7 +746,7 @@ def main():
 
     # Create batch scraper
     batch_scraper = BatchScraper(
-        output_dir="scraped_courses",
+        output_dir="scraped_courses_spring_2026",
         progress_file="scraping_progress.json"
     )
 
