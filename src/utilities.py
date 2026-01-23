@@ -2,7 +2,7 @@ import pdfplumber
 import re 
 import pandas as pd
 
-KB = pd.read_csv('../data/preprocessing/courses_data_before_llm.csv')
+# KB = pd.read_csv('../data/preprocessing/courses_data_before_llm.csv')
 
 
 # --- 1. Helper Function to Parse PDF ---

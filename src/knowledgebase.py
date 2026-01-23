@@ -181,5 +181,5 @@ def recommend_courses(semester_name="WINTER_2025_2026",courses_list=[],no_exam=F
     reranked_courses = rerank(filtered_courses,semantic_weight,credits_weight,avg_grade_weight,workload_rating_weight,general_rating_weight)
 
     print(reranked_courses.head(10)[['title','avg_grade_all_sem',"prerequisites"]])
-
+    return reranked_courses
 # recommend_courses(courses_list=['02340221'])

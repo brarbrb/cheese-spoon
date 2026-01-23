@@ -13,7 +13,6 @@
 </head>
 
 <body>
-  <!-- Same navbar (links to home + upload) -->
   <nav id="top-navbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
@@ -29,32 +28,29 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-<div id="top-navbar-supported-content" class="collapse navbar-collapse">
-  <ul class="navbar-nav ml-auto align-items-lg-center">
+      <div id="top-navbar-supported-content" class="collapse navbar-collapse">
+        <ul class="navbar-nav ml-auto align-items-lg-center">
+          <li class="nav-item">
+            <a class="btn btn-sm btn-outline-secondary mr-lg-2"
+               href="{{ url_for('index') }}">
+              Home
+            </a>
+          </li>
 
-    <li class="nav-item">
-      <a class="btn btn-sm btn-outline-secondary mr-lg-2"
-         href="{{ url_for('index') }}">
-        Home
-      </a>
-    </li>
-
-    <li class="nav-item">
-      <a class="btn btn-sm btn-outline-secondary mr-lg-2"
-         href="{{ url_for('course_overview') }}">
-        Course Overview
-      </a>
-    </li>
-
-  </ul>
-</div>
-
+          <li class="nav-item">
+            <a class="btn btn-sm btn-outline-secondary mr-lg-2"
+               href="{{ url_for('course_overview') }}">
+              Course Overview
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
   </nav>
 
   <main class="container my-4">
     <div class="row justify-content-center">
-      <div class="col-lg-8">
+      <div class="col-lg-10">
 
         {% with messages = get_flashed_messages() %}
           {% if messages %}
@@ -65,108 +61,148 @@
         {% endwith %}
 
         <div class="feature-card p-4">
-          <h4 class="mb-1">Upload & Preferences</h4>
+          <h4 class="mb-1">Upload & Configure Recommendations</h4>
           <div class="muted small mb-4">
-            Step 1/3 — we'll use this to filter eligibility and personalize recommendations.
+            Upload your grade sheet and set your preferences to get personalized course recommendations.
           </div>
 
           <form method="POST" enctype="multipart/form-data">
-            <!-- Upload -->
-            <!-- <div class="form-group">
+
+            <!-- Grade Sheet Upload -->
+            <div class="form-group">
               <label class="mb-1"><strong>Grade sheet</strong></label>
               <div class="muted small mb-2">PDF or Excel.</div>
-              <input type="file" class="form-control-file" name="grades_file" accept=".pdf,.xlsx,.xls">
-            </div> -->
-<div class="form-group">
-  <label class="mb-1"><strong>Grade sheet</strong></label>
-  <!-- <div class="muted small mb-2">PDF or Excel. Drag & drop or click to browse.</div> -->
-  <div class="muted small mb-2">PDF or Excel.</div>
 
-  <!-- Dropzone -->
-  <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Upload grade sheet">
-    <div class="dropzone-inner">
-      <div class="dropzone-title">Drop your file here</div>
-      <div class="muted small">or click to choose a file</div>
-      <div id="fileName" class="dropzone-filename muted small mt-2" style="display:none;"></div>
-    </div>
-
-    <!-- Real input (hidden) -->
-    <input
-      id="gradesFileInput"
-      type="file"
-      name="grades_file"
-      accept=".pdf,.xlsx,.xls"
-      class="dropzone-input"
-    />
-  </div>
-</div>
-
-            <hr>
-
-            <!-- Faculty / Track / Semester -->
-            <div class="form-row">
-              <div class="form-group col-md-4">
-                <label class="mb-1"><strong>Faculty</strong></label>
-                <select class="form-control" name="faculty">
-                  <!-- <option value="09XXXX" selected>09XXXX (CS/DS faculty)</option> -->
-                 <option value="Data" selected>Data and Decisions Science </option>
-                  <option value="Electrical">Electrical Engineering</option>
-                  <option value="Computer">Computer Sciences</option>
-                </select>
-              </div>
-
-              <div class="form-group col-md-4">
-                <label class="mb-1"><strong>Path</strong></label>
-                <select class="form-control" name="track">
-                 <option value="DataEngineering" selected>Data Engineering</option>
-                  <option value="System" selected>System Engineering</option>
-                  <!-- <option value="DataScience">Data Science</option> -->
-                  <option value="Industrial">Industrial Engineering</option>
-                </select>
-              </div>
-
-              <div class="form-group col-md-4">
-                <label class="mb-1"><strong>Semester</strong></label>
-                <select class="form-control" name="semester">
-                  <option value="2026_spring" selected>Spring 2026</option>
-                  <option value="2026_winter">Winter 2026</option>
-                  <option value="2025_fall">Fall 2025</option>
-                </select>
-              </div>
-            </div>
-
-            <hr>
-
-            <!-- Preference chips -->
-            <div class="form-group">
-              <label class="mb-1"><strong>Preferences (optional)</strong></label>
-              <!-- <div class="muted small mb-2">Click chips to add/remove. Add custom ones too.</div> -->
-              <div class="muted small mb-2">Click chips to add/remove.</div>
-              <div class="mb-2">
-                <button type="button" class="btn btn-sm btn-outline-secondary pref-suggest" data-value="Prefer projects">Prefer projects</button>
-                <button type="button" class="btn btn-sm btn-outline-secondary pref-suggest" data-value="Avoid heavy math">Avoid heavy math</button>
-                <button type="button" class="btn btn-sm btn-outline-secondary pref-suggest" data-value="2 exams max">2 exams max</button>
-                <button type="button" class="btn btn-sm btn-outline-secondary pref-suggest" data-value="Morning classes">Morning classes</button>
-              </div>
-
-              <div id="pref-chips" class="pref-chips mb-2"></div>
-<!-- 
-              <div class="input-group">
-                <input id="pref-input" type="text" class="form-control" placeholder="Add preference (e.g., no Friday, prefer OS/ML)">
-                <div class="input-group-append">
-                  <button id="pref-add" type="button" class="btn btn-outline-dark">Add</button>
+              <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Upload grade sheet">
+                <div class="dropzone-inner">
+                  <div class="dropzone-title">Drop your file here</div>
+                  <div class="muted small">or click to choose a file</div>
+                  <div id="fileName" class="dropzone-filename muted small mt-2" style="display:none;"></div>
                 </div>
-              </div> -->
 
-              <!-- Hidden field that will be posted -->
-              <input type="hidden" name="preferences_chips" id="preferences_chips" value="">
+                <input
+                  id="gradesFileInput"
+                  type="file"
+                  name="grades_file"
+                  accept=".pdf,.xlsx,.xls"
+                  class="dropzone-input"
+                />
+              </div>
             </div>
+
+            <hr>
+
+            <!-- Semester Selection -->
+            <div class="form-group">
+              <label class="mb-1"><strong>Semester</strong></label>
+              <select class="form-control" name="semester">
+                <option value="WINTER_2025_2026" selected>Winter 2025/2026</option>
+                <option value="SPRING_2026">Spring 2026</option>
+                <option value="FALL_2025">Fall 2025</option>
+              </select>
+            </div>
+
+            <hr>
+
+            <!-- Filters Section -->
+            <h5 class="mb-3">Filters</h5>
+
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label class="mb-1"><strong>Exam requirement</strong></label>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="noExamCheck" name="no_exam" value="true">
+                  <label class="custom-control-label" for="noExamCheck">
+                    Only show courses without exams
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label class="mb-1"><strong>Minimum credits</strong></label>
+                <div class="d-flex align-items-center">
+                  <input
+                    type="range"
+                    class="custom-range flex-grow-1"
+                    id="minCreditsSlider"
+                    name="min_credits"
+                    min="0"
+                    max="5"
+                    step="0.5"
+                    value="0"
+                  >
+                  <span class="ml-3" id="minCreditsValue">0.0</span>
+                </div>
+              </div>
+            </div>
+
+            <hr>
+
+            <!-- Ranking Weights Section -->
+            <h5 class="mb-2">Ranking Weights</h5>
+            <div class="muted small mb-3">Adjust how much each factor influences recommendations (must sum to 1.0)</div>
+
+            <div class="form-row">
+              <div class="form-group col-md-6 col-lg-4">
+                <label class="mb-1 small"><strong>Semantic Match</strong></label>
+                <div class="d-flex align-items-center">
+                  <input type="range" class="custom-range flex-grow-1 weight-slider"
+                         name="semantic_weight" min="0" max="1" step="0.05" value="0.2">
+                  <span class="ml-2 weight-display">0.20</span>
+                </div>
+              </div>
+
+              <div class="form-group col-md-6 col-lg-4">
+                <label class="mb-1 small"><strong>Credits</strong></label>
+                <div class="d-flex align-items-center">
+                  <input type="range" class="custom-range flex-grow-1 weight-slider"
+                         name="credits_weight" min="0" max="1" step="0.05" value="0.2">
+                  <span class="ml-2 weight-display">0.20</span>
+                </div>
+              </div>
+
+              <div class="form-group col-md-6 col-lg-4">
+                <label class="mb-1 small"><strong>Average Grade</strong></label>
+                <div class="d-flex align-items-center">
+                  <input type="range" class="custom-range flex-grow-1 weight-slider"
+                         name="avg_grade_weight" min="0" max="1" step="0.05" value="0.2">
+                  <span class="ml-2 weight-display">0.20</span>
+                </div>
+              </div>
+
+              <div class="form-group col-md-6 col-lg-4">
+                <label class="mb-1 small"><strong>Workload Rating</strong></label>
+                <div class="d-flex align-items-center">
+                  <input type="range" class="custom-range flex-grow-1 weight-slider"
+                         name="workload_rating_weight" min="0" max="1" step="0.05" value="0.2">
+                  <span class="ml-2 weight-display">0.20</span>
+                </div>
+              </div>
+
+              <div class="form-group col-md-6 col-lg-4">
+                <label class="mb-1 small"><strong>General Rating</strong></label>
+                <div class="d-flex align-items-center">
+                  <input type="range" class="custom-range flex-grow-1 weight-slider"
+                         name="general_rating_weight" min="0" max="1" step="0.05" value="0.2">
+                  <span class="ml-2 weight-display">0.20</span>
+                </div>
+              </div>
+
+              <div class="form-group col-md-6 col-lg-4 d-flex align-items-end">
+                <div class="alert alert-light small mb-0 w-100">
+                  <strong>Total:</strong> <span id="weightTotal">1.00</span>
+                </div>
+              </div>
+            </div>
+
+            <hr>
 
             <!-- Free-text preferences -->
             <div class="form-group">
-              <label class="mb-1"><strong>Free-text goals (optional)</strong></label>
+              <label class="mb-1"><strong>Preferences (optional)</strong></label>
+              <div class="muted small mb-2">Describe your interests, goals, or constraints in natural language</div>
               <textarea class="form-control" rows="3" name="preferences_text"
-                placeholder="Example: I want ML/NLP courses, moderate workload, avoid 2 midterms, prefer project-based courses."></textarea>
+                placeholder="Example: I want ML/NLP courses, moderate workload, prefer project-based courses."></textarea>
             </div>
 
             <!-- Privacy note -->
@@ -176,7 +212,7 @@
 
             <div class="d-flex justify-content-between">
               <a class="btn btn-outline-secondary" href="{{ url_for('index') }}">Back</a>
-              <button class="btn btn-dark" type="submit">Continue</button>
+              <button class="btn btn-dark" type="submit">Get Recommendations</button>
             </div>
           </form>
         </div>
@@ -189,121 +225,90 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // --- Preference chips (client-side mock) ---
-    const chipsEl = document.getElementById("pref-chips");
-    const inputEl = document.getElementById("pref-input");
-    const hiddenEl = document.getElementById("preferences_chips");
+    // File upload dropzone
+    const dropzone = document.getElementById("dropzone");
+    const fileInput = document.getElementById("gradesFileInput");
+    const fileNameEl = document.getElementById("fileName");
 
-    const state = new Set();
-
-    function syncHidden() {
-      hiddenEl.value = Array.from(state).join(" | ");
+    function showFileName(file) {
+      if (!file) {
+        fileNameEl.style.display = "none";
+        fileNameEl.textContent = "";
+        return;
+      }
+      fileNameEl.style.display = "block";
+      fileNameEl.textContent = `Selected: ${file.name}`;
     }
 
-    function render() {
-      chipsEl.innerHTML = "";
-      Array.from(state).forEach(val => {
-        const chip = document.createElement("span");
-        chip.className = "badge badge-dark pref-chip";
-        chip.textContent = val;
-
-        const x = document.createElement("span");
-        x.className = "pref-chip-x";
-        x.textContent = "×";
-        x.title = "Remove";
-
-        x.onclick = () => {
-          state.delete(val);
-          render();
-          syncHidden();
-        };
-
-        chip.appendChild(x);
-        chipsEl.appendChild(chip);
-      });
-    }
-
-    function addPref(val) {
-      const v = (val || "").trim();
-      if (!v) return;
-      state.add(v);
-      render();
-      syncHidden();
-    }
-
-    document.querySelectorAll(".pref-suggest").forEach(btn => {
-      btn.addEventListener("click", () => addPref(btn.dataset.value));
-    });
-
-    document.getElementById("pref-add").addEventListener("click", () => {
-      addPref(inputEl.value);
-      inputEl.value = "";
-      inputEl.focus();
-    });
-
-    inputEl.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
+    dropzone.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        addPref(inputEl.value);
-        inputEl.value = "";
+        fileInput.click();
       }
     });
+
+    fileInput.addEventListener("change", () => {
+      showFileName(fileInput.files && fileInput.files[0]);
+    });
+
+    ["dragenter", "dragover"].forEach(evt => {
+      dropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.add("is-dragover");
+      });
+    });
+
+    ["dragleave", "drop"].forEach(evt => {
+      dropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove("is-dragover");
+      });
+    });
+
+    dropzone.addEventListener("drop", (e) => {
+      const files = e.dataTransfer.files;
+      if (!files || files.length === 0) return;
+      fileInput.files = files;
+      showFileName(files[0]);
+    });
+
+    // Min credits slider
+    const minCreditsSlider = document.getElementById("minCreditsSlider");
+    const minCreditsValue = document.getElementById("minCreditsValue");
+
+    minCreditsSlider.addEventListener("input", () => {
+      minCreditsValue.textContent = parseFloat(minCreditsSlider.value).toFixed(1);
+    });
+
+    // Weight sliders
+    const weightSliders = document.querySelectorAll(".weight-slider");
+    const weightTotal = document.getElementById("weightTotal");
+
+    function updateWeights() {
+      let total = 0;
+      weightSliders.forEach(slider => {
+        const val = parseFloat(slider.value);
+        total += val;
+        slider.nextElementSibling.textContent = val.toFixed(2);
+      });
+
+      weightTotal.textContent = total.toFixed(2);
+
+      // Visual feedback if not summing to 1.0
+      if (Math.abs(total - 1.0) > 0.01) {
+        weightTotal.style.color = "#dc3545"; // red
+      } else {
+        weightTotal.style.color = "#28a745"; // green
+      }
+    }
+
+    weightSliders.forEach(slider => {
+      slider.addEventListener("input", updateWeights);
+    });
+
+    updateWeights();
   </script>
-  <script>
-  const dropzone = document.getElementById("dropzone");
-  const fileInput = document.getElementById("gradesFileInput");
-  const fileNameEl = document.getElementById("fileName");
-
-  function showFileName(file) {
-    if (!file) {
-      fileNameEl.style.display = "none";
-      fileNameEl.textContent = "";
-      return;
-    }
-    fileNameEl.style.display = "block";
-    fileNameEl.textContent = `Selected: ${file.name}`;
-  }
-
-  // Clicking the dropzone triggers file picker (input already covers it, but this helps keyboard)
-  dropzone.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      fileInput.click();
-    }
-  });
-
-  // When user selects via picker
-  fileInput.addEventListener("change", () => {
-    showFileName(fileInput.files && fileInput.files[0]);
-  });
-
-  // Drag events
-  ["dragenter", "dragover"].forEach(evt => {
-    dropzone.addEventListener(evt, (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      dropzone.classList.add("is-dragover");
-    });
-  });
-
-  ["dragleave", "drop"].forEach(evt => {
-    dropzone.addEventListener(evt, (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      dropzone.classList.remove("is-dragover");
-    });
-  });
-
-  // Drop -> assign files to input
-  dropzone.addEventListener("drop", (e) => {
-    const files = e.dataTransfer.files;
-    if (!files || files.length === 0) return;
-
-    // This works in modern browsers
-    fileInput.files = files;
-    showFileName(files[0]);
-  });
-</script>
-
 </body>
 </html>

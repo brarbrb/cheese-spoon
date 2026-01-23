@@ -747,7 +747,7 @@ def main():
     # Create batch scraper
     batch_scraper = BatchScraper(
         output_dir="scraped_courses_spring_2026",
-        progress_file="scraping_progress.json"
+        progress_file="scraping_progress_spring_2026.json"
     )
 
     # Check if we should skip discovery
