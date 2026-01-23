@@ -33,56 +33,78 @@
         <div class="feature-card p-4">
           <h4 class="mb-1">Review Your Completed Courses</h4>
           <div class="muted small mb-4">
-            Step 2 of 3: We extracted <strong>{{ completed_courses|length }}</strong> courses. Review and confirm before proceeding.
+            Step 2 of 3: Review extracted courses or manually add missing ones.
+          </div>
+
+          <div class="card mb-4 border-primary">
+            <div class="card-body py-3 bg-light">
+              <form method="POST" class="d-flex align-items-center flex-wrap">
+                <label class="mr-2 mb-0 font-weight-bold text-primary">Add Manual Course:</label>
+                <input type="text" name="new_course_id" class="form-control mr-2" 
+                       placeholder="e.g. 234111" style="max-width: 150px;" required>
+                <button type="submit" class="btn btn-primary btn-sm">Add</button>
+                <small class="text-muted ml-3 d-none d-sm-block">
+                  Enter the course ID to add it to your list below.
+                </small>
+              </form>
+            </div>
           </div>
 
           <form method="POST">
-            {% if completed_courses %}
             <div class="card mb-4">
               <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                <strong>Extracted Courses</strong>
+                <strong>Your Course List ({{ courses_list|length }})</strong>
+                
+                {% if completed_courses %}
                 <div>
                   <button type="button" class="btn btn-sm btn-outline-secondary" id="selectAll">Select All</button>
                   <button type="button" class="btn btn-sm btn-outline-secondary" id="deselectAll">Deselect All</button>
                 </div>
+                {% endif %}
               </div>
+
               <div class="card-body">
-                <div class="row">
-                  {% for course_id in completed_courses %}
-                  <div class="col-md-3 col-sm-4 col-6 mb-2">
-                    <div class="custom-control custom-checkbox">
-                      <input class="custom-control-input course-checkbox" type="checkbox"
-                             name="confirmed_courses" value="{{ course_id }}"
-                             id="course_{{ course_id }}" checked>
-                      <label class="custom-control-label" for="course_{{ course_id }}">
-                        {{ course_id }}
-                      </label>
-                    </div>
-                  </div>
-                  {% endfor %}
-                </div>
-
-                <div class="alert alert-light mt-3 mb-0">
-                  <strong>Tip:</strong> Uncheck any courses that were incorrectly extracted or that you don't want to include.
-                </div>
-              </div>
-            </div>
-            {% else %}
-            <div class="alert alert-warning">
-              <strong>No courses found.</strong> The grade sheet parsing did not extract any courses.
-              Please try uploading a different file.
-            </div>
+  {% if courses_list %}
+    <div class="row">
+      {% for course in courses_list %}
+      <div class="col-12 mb-2"> <div class="custom-control custom-checkbox border-bottom pb-2">
+          
+          <input class="custom-control-input course-checkbox" type="checkbox"
+                 name="confirmed_courses" value="{{ course.id }}"
+                 id="course_{{ course.id }}" checked>
+          
+          <label class="custom-control-label w-100" for="course_{{ course.id }}">
+            <span class="font-weight-bold text-dark">{{ course.title }}</span>
+            {% if course.id == course.title %}
+              <span class="badge badge-warning ml-2">Unknown Title</span>
             {% endif %}
+          </label>
+          
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="alert alert-light mt-3 mb-0 small">
+      <strong>Tip:</strong> Uncheck any courses that were incorrectly extracted.
+    </div>
+  {% else %}
+    <div class="text-center py-4 muted">
+      <p class="mb-0">No courses in your list yet.</p>
+      <small>Upload a grade sheet or add courses manually above.</small>
+    </div>
+  {% endif %}
+</div>
 
-            <div class="d-flex justify-content-between">
-              <a class="btn btn-outline-secondary" href="{{ url_for('upload') }}">← Re-upload Grade Sheet</a>
+            <div class="d-flex justify-content-between align-items-center">
+              <a class="btn btn-outline-secondary" href="{{ url_for('upload') }}">← Back to Upload</a>
+              
               <button class="btn btn-dark" type="submit" {% if not completed_courses %}disabled{% endif %}>
                 Confirm & Set Filters →
               </button>
             </div>
           </form>
-        </div>
 
+        </div>
       </div>
     </div>
   </main>

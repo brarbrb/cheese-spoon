@@ -37,12 +37,11 @@
           </div>
 
           <form method="POST" enctype="multipart/form-data">
-            <!-- Grade Sheet Upload -->
             <div class="form-group">
               <label class="mb-1"><strong>Grade sheet</strong></label>
               <div class="muted small mb-2">PDF or Excel format.</div>
 
-              <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Upload grade sheet">
+              <div id="dropzone" class="dropzone">
                 <div class="dropzone-inner">
                   <div class="dropzone-title">Drop your file here</div>
                   <div class="muted small">or click to choose a file</div>
@@ -55,7 +54,6 @@
                   name="grades_file"
                   accept=".pdf,.xlsx,.xls"
                   class="dropzone-input"
-                  required
                 />
               </div>
             </div>
@@ -70,14 +68,13 @@
               </ol>
             </div>
 
-            <!-- Privacy note -->
             <div class="alert alert-light small mb-4">
               <strong>Privacy Note:</strong> We don't store the original grade sheet — only parsed course IDs.
             </div>
 
             <div class="d-flex justify-content-between">
-              <a class="btn btn-outline-secondary" href="{{ url_for('index') }}">Back to Home</a>
-              <button class="btn btn-dark" type="submit">Parse & Continue →</button>
+              <a class="btn btn-outline-secondary" href="{{ url_for('index') }}">Back to Home</a>               
+               <button class="btn btn-dark" type="submit">Parse & Continue →</button>
             </div>
           </form>
         </div>
@@ -105,21 +102,18 @@
       fileNameEl.textContent = `Selected: ${file.name}`;
     }
 
-    dropzone.addEventListener("click", () => fileInput.click());
-
-    dropzone.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        fileInput.click();
-      }
-    });
+    // MODIFIED: Removed the "click" and "keydown" listeners on dropzone.
+    // Because .dropzone-input covers the whole div (inset: 0), 
+    // the browser handles the click natively. Adding JS caused the "double open" bug.
 
     fileInput.addEventListener("change", () => {
       showFileName(fileInput.files && fileInput.files[0]);
     });
 
+    // Visual drag-and-drop feedback
     ["dragenter", "dragover"].forEach(evt => {
       dropzone.addEventListener(evt, (e) => {
+        // We still need to prevent default to allow drop
         e.preventDefault();
         e.stopPropagation();
         dropzone.classList.add("is-dragover");

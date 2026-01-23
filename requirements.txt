@@ -1,0 +1,4 @@
+pinecone
+flask
+dotenv
+sentence_transformers
