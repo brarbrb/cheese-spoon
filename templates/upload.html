@@ -3,12 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CheeseSpoon — Upload</title>
-
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
+  <title>CheeseSpoon — Upload Grade Sheet</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
 </head>
 
@@ -17,40 +13,14 @@
     <div class="container">
       <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
         <span>CheeseSpoon</span>
-        <img
-          src="{{ url_for('static', filename='logo.png') }}"
-          alt="CheeseSpoon"
-          class="brand-logo"
-        />
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="CheeseSpoon" class="brand-logo" />
       </a>
-
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#top-navbar-supported-content">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div id="top-navbar-supported-content" class="collapse navbar-collapse">
-        <ul class="navbar-nav ml-auto align-items-lg-center">
-          <li class="nav-item">
-            <a class="btn btn-sm btn-outline-secondary mr-lg-2"
-               href="{{ url_for('index') }}">
-              Home
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a class="btn btn-sm btn-outline-secondary mr-lg-2"
-               href="{{ url_for('course_overview') }}">
-              Course Overview
-            </a>
-          </li>
-        </ul>
-      </div>
     </div>
   </nav>
 
   <main class="container my-4">
     <div class="row justify-content-center">
-      <div class="col-lg-10">
+      <div class="col-lg-8">
 
         {% with messages = get_flashed_messages() %}
           {% if messages %}
@@ -61,17 +31,16 @@
         {% endwith %}
 
         <div class="feature-card p-4">
-          <h4 class="mb-1">Upload & Configure Recommendations</h4>
+          <h4 class="mb-1">Upload Your Grade Sheet</h4>
           <div class="muted small mb-4">
-            Upload your grade sheet and set your preferences to get personalized course recommendations.
+            Step 1 of 3: Upload your Technion grade sheet to extract completed courses.
           </div>
 
           <form method="POST" enctype="multipart/form-data">
-
             <!-- Grade Sheet Upload -->
             <div class="form-group">
               <label class="mb-1"><strong>Grade sheet</strong></label>
-              <div class="muted small mb-2">PDF or Excel.</div>
+              <div class="muted small mb-2">PDF or Excel format.</div>
 
               <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Upload grade sheet">
                 <div class="dropzone-inner">
@@ -86,123 +55,19 @@
                   name="grades_file"
                   accept=".pdf,.xlsx,.xls"
                   class="dropzone-input"
+                  required
                 />
               </div>
             </div>
 
-            <hr>
-
-            <!-- Semester Selection -->
-            <div class="form-group">
-              <label class="mb-1"><strong>Semester</strong></label>
-              <select class="form-control" name="semester">
-                <option value="WINTER_2025_2026" selected>Winter 2025/2026</option>
-                <option value="SPRING_2026">Spring 2026</option>
-                <option value="FALL_2025">Fall 2025</option>
-              </select>
-            </div>
-
-            <hr>
-
-            <!-- Filters Section -->
-            <h5 class="mb-3">Filters</h5>
-
-            <div class="form-row">
-              <div class="form-group col-md-6">
-                <label class="mb-1"><strong>Exam requirement</strong></label>
-                <div class="custom-control custom-checkbox">
-                  <input type="checkbox" class="custom-control-input" id="noExamCheck" name="no_exam" value="true">
-                  <label class="custom-control-label" for="noExamCheck">
-                    Only show courses without exams
-                  </label>
-                </div>
-              </div>
-
-              <div class="form-group col-md-6">
-                <label class="mb-1"><strong>Minimum credits</strong></label>
-                <div class="d-flex align-items-center">
-                  <input
-                    type="range"
-                    class="custom-range flex-grow-1"
-                    id="minCreditsSlider"
-                    name="min_credits"
-                    min="0"
-                    max="5"
-                    step="0.5"
-                    value="0"
-                  >
-                  <span class="ml-3" id="minCreditsValue">0.0</span>
-                </div>
-              </div>
-            </div>
-
-            <hr>
-
-            <!-- Ranking Weights Section -->
-            <h5 class="mb-2">Ranking Weights</h5>
-            <div class="muted small mb-3">Adjust how much each factor influences recommendations (must sum to 1.0)</div>
-
-            <div class="form-row">
-              <div class="form-group col-md-6 col-lg-4">
-                <label class="mb-1 small"><strong>Semantic Match</strong></label>
-                <div class="d-flex align-items-center">
-                  <input type="range" class="custom-range flex-grow-1 weight-slider"
-                         name="semantic_weight" min="0" max="1" step="0.05" value="0.2">
-                  <span class="ml-2 weight-display">0.20</span>
-                </div>
-              </div>
-
-              <div class="form-group col-md-6 col-lg-4">
-                <label class="mb-1 small"><strong>Credits</strong></label>
-                <div class="d-flex align-items-center">
-                  <input type="range" class="custom-range flex-grow-1 weight-slider"
-                         name="credits_weight" min="0" max="1" step="0.05" value="0.2">
-                  <span class="ml-2 weight-display">0.20</span>
-                </div>
-              </div>
-
-              <div class="form-group col-md-6 col-lg-4">
-                <label class="mb-1 small"><strong>Average Grade</strong></label>
-                <div class="d-flex align-items-center">
-                  <input type="range" class="custom-range flex-grow-1 weight-slider"
-                         name="avg_grade_weight" min="0" max="1" step="0.05" value="0.2">
-                  <span class="ml-2 weight-display">0.20</span>
-                </div>
-              </div>
-
-              <div class="form-group col-md-6 col-lg-4">
-                <label class="mb-1 small"><strong>Workload Rating</strong></label>
-                <div class="d-flex align-items-center">
-                  <input type="range" class="custom-range flex-grow-1 weight-slider"
-                         name="workload_rating_weight" min="0" max="1" step="0.05" value="0.2">
-                  <span class="ml-2 weight-display">0.20</span>
-                </div>
-              </div>
-
-              <div class="form-group col-md-6 col-lg-4">
-                <label class="mb-1 small"><strong>General Rating</strong></label>
-                <div class="d-flex align-items-center">
-                  <input type="range" class="custom-range flex-grow-1 weight-slider"
-                         name="general_rating_weight" min="0" max="1" step="0.05" value="0.2">
-                  <span class="ml-2 weight-display">0.20</span>
-                </div>
-              </div>
-
-              <div class="form-group col-md-6 col-lg-4 d-flex align-items-end">
-                <div class="alert alert-light small mb-0 w-100">
-                  <strong>Total:</strong> <span id="weightTotal">1.00</span>
-                </div>
-              </div>
-            </div>
-
-            <hr>
-
-            <!-- Free-text preferences -->
-            <div class="form-group">
-              <label class="mb-1"><strong>Preferences (optional)</strong></label>
-              <div class="muted small mb-2">Describe your interests, goals, or constraints in natural language</div>
-              <textarea class="form-control" rows="3" name="preferences_text"
-                placeholder="Example: I want ML/NLP courses, moderate workload, prefer project-based courses."></textarea>
+            <div class="alert alert-light small mb-4">
+              <strong>What happens next?</strong>
+              <ol class="mb-0 small">
+                <li>We'll parse your grade sheet to extract completed courses</li>
+                <li>You'll review and confirm the extracted courses</li>
+                <li>You'll set your preferences and filters</li>
+                <li>You'll get personalized course recommendations</li>
+              </ol>
             </div>
 
             <!-- Privacy note -->
@@ -211,8 +76,8 @@
             </div>
 
             <div class="d-flex justify-content-between">
-              <a class="btn btn-outline-secondary" href="{{ url_for('index') }}">Back</a>
-              <button class="btn btn-dark" type="submit">Get Recommendations</button>
+              <a class="btn btn-outline-secondary" href="{{ url_for('index') }}">Back to Home</a>
+              <button class="btn btn-dark" type="submit">Parse & Continue →</button>
             </div>
           </form>
         </div>
@@ -239,6 +104,8 @@
       fileNameEl.style.display = "block";
       fileNameEl.textContent = `Selected: ${file.name}`;
     }
+
+    dropzone.addEventListener("click", () => fileInput.click());
 
     dropzone.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
@@ -273,42 +140,6 @@
       fileInput.files = files;
       showFileName(files[0]);
     });
-
-    // Min credits slider
-    const minCreditsSlider = document.getElementById("minCreditsSlider");
-    const minCreditsValue = document.getElementById("minCreditsValue");
-
-    minCreditsSlider.addEventListener("input", () => {
-      minCreditsValue.textContent = parseFloat(minCreditsSlider.value).toFixed(1);
-    });
-
-    // Weight sliders
-    const weightSliders = document.querySelectorAll(".weight-slider");
-    const weightTotal = document.getElementById("weightTotal");
-
-    function updateWeights() {
-      let total = 0;
-      weightSliders.forEach(slider => {
-        const val = parseFloat(slider.value);
-        total += val;
-        slider.nextElementSibling.textContent = val.toFixed(2);
-      });
-
-      weightTotal.textContent = total.toFixed(2);
-
-      // Visual feedback if not summing to 1.0
-      if (Math.abs(total - 1.0) > 0.01) {
-        weightTotal.style.color = "#dc3545"; // red
-      } else {
-        weightTotal.style.color = "#28a745"; // green
-      }
-    }
-
-    weightSliders.forEach(slider => {
-      slider.addEventListener("input", updateWeights);
-    });
-
-    updateWeights();
   </script>
 </body>
 </html>

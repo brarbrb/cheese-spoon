@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CheeseSpoon — Set Filters</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+
+<body>
+  <nav id="top-navbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
+        <span>CheeseSpoon</span>
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="CheeseSpoon" class="brand-logo" />
+      </a>
+    </div>
+  </nav>
+
+  <main class="container my-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="alert alert-secondary" role="alert">
+              {{ messages[0] }}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <div class="feature-card p-4">
+          <h4 class="mb-1">Set Your Preferences & Filters</h4>
+          <div class="muted small mb-4">
+            Step 3 of 3: Configure filters and ranking weights for personalized recommendations.
+            <br><strong>{{ confirmed_count }}</strong> courses confirmed from your grade sheet.
+          </div>
+
+          <form method="POST">
+            <!-- Semester Selection -->
+            <div class="form-group">
+              <label class="mb-1"><strong>Semester</strong></label>
+              <select class="form-control" name="semester">
+                <option value="WINTER_2025_2026" selected>Winter 2025/2026</option>
+                <option value="SPRING_2026">Spring 2026</option>
+                <option value="FALL_2025">Fall 2025</option>
+              </select>
+            </div>
+
+            <hr>
+
+            <!-- Filters Section -->
+            <h5 class="mb-3">Course Filters</h5>
+
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label class="mb-1"><strong>Exam requirement</strong></label>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="noExamCheck" name="no_exam" value="true">
+                  <label class="custom-control-label" for="noExamCheck">
+                    Only show courses without exams
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label class="mb-1"><strong>Minimum credits</strong></label>
+                <div class="d-flex align-items-center">
+                  <input
+                    type="range"
+                    class="custom-range flex-grow-1"
+                    id="minCreditsSlider"
+                    name="min_credits"
+                    min="0"
+                    max="5"
+                    step="0.5"
+                    value="0"
+                  >
+                  <span class="ml-3" id="minCreditsValue">0.0</span>
+                </div>
+              </div>
+            </div>
+
+            <hr>
+
+            <!-- Ranking Weights Section -->
+            <h5 class="mb-2">Ranking Weights</h5>
+            <div class="muted small mb-3">Adjust how much each factor influences recommendations (must sum to 1.0)</div>
+
+            <div class="form-row">
+              <div class="form-group col-md-6 col-lg-4">
+                <label class="mb-1 small"><strong>Semantic Match</strong></label>
+                <div class="d-flex align-items-center">
+                  <input type="range" class="custom-range flex-grow-1 weight-slider"
+                         name="semantic_weight" min="0" max="1" step="0.05" value="0.2">
+                  <span class="ml-2 weight-display">0.20</span>
+                </div>
+              </div>
+
+              <div class="form-group col-md-6 col-lg-4">
+                <label class="mb-1 small"><strong>Credits</strong></label>
+                <div class="d-flex align-items-center">
+                  <input type="range" class="custom-range flex-grow-1 weight-slider"
+                         name="credits_weight" min="0" max="1" step="0.05" value="0.2">
+                  <span class="ml-2 weight-display">0.20</span>
+                </div>
+              </div>
+
+              <div class="form-group col-md-6 col-lg-4">
+                <label class="mb-1 small"><strong>Average Grade</strong></label>
+                <div class="d-flex align-items-center">
+                  <input type="range" class="custom-range flex-grow-1 weight-slider"
+                         name="avg_grade_weight" min="0" max="1" step="0.05" value="0.2">
+                  <span class="ml-2 weight-display">0.20</span>
+                </div>
+              </div>
+
+              <div class="form-group col-md-6 col-lg-4">
+                <label class="mb-1 small"><strong>Workload Rating</strong></label>
+                <div class="d-flex align-items-center">
+                  <input type="range" class="custom-range flex-grow-1 weight-slider"
+                         name="workload_rating_weight" min="0" max="1" step="0.05" value="0.2">
+                  <span class="ml-2 weight-display">0.20</span>
+                </div>
+              </div>
+
+              <div class="form-group col-md-6 col-lg-4">
+                <label class="mb-1 small"><strong>General Rating</strong></label>
+                <div class="d-flex align-items-center">
+                  <input type="range" class="custom-range flex-grow-1 weight-slider"
+                         name="general_rating_weight" min="0" max="1" step="0.05" value="0.2">
+                  <span class="ml-2 weight-display">0.20</span>
+                </div>
+              </div>
+
+              <div class="form-group col-md-6 col-lg-4 d-flex align-items-end">
+                <div class="alert alert-light small mb-0 w-100">
+                  <strong>Total:</strong> <span id="weightTotal">1.00</span>
+                </div>
+              </div>
+            </div>
+
+            <hr>
+
+            <!-- Free-text preferences -->
+            <div class="form-group">
+              <label class="mb-1"><strong>Preferences (optional)</strong></label>
+              <div class="muted small mb-2">Describe your interests, goals, or constraints in natural language</div>
+              <textarea class="form-control" rows="3" name="preferences_text"
+                placeholder="Example: I want ML/NLP courses, moderate workload, prefer project-based courses."></textarea>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <a class="btn btn-outline-secondary" href="{{ url_for('review_courses') }}">← Back to Review</a>
+              <button class="btn btn-dark" type="submit">Get Recommendations →</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Min credits slider
+    const minCreditsSlider = document.getElementById("minCreditsSlider");
+    const minCreditsValue = document.getElementById("minCreditsValue");
+
+    minCreditsSlider.addEventListener("input", () => {
+      minCreditsValue.textContent = parseFloat(minCreditsSlider.value).toFixed(1);
+    });
+
+    // Weight sliders
+    const weightSliders = document.querySelectorAll(".weight-slider");
+    const weightTotal = document.getElementById("weightTotal");
+
+    function updateWeights() {
+      let total = 0;
+      weightSliders.forEach(slider => {
+        const val = parseFloat(slider.value);
+        total += val;
+        slider.nextElementSibling.textContent = val.toFixed(2);
+      });
+
+      weightTotal.textContent = total.toFixed(2);
+
+      // Visual feedback if not summing to 1.0
+      if (Math.abs(total - 1.0) > 0.01) {
+        weightTotal.style.color = "#dc3545"; // red
+      } else {
+        weightTotal.style.color = "#28a745"; // green
+      }
+    }
+
+    weightSliders.forEach(slider => {
+      slider.addEventListener("input", updateWeights);
+    });
+
+    updateWeights();
+  </script>
+</body>
+</html>

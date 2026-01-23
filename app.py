@@ -16,39 +16,87 @@ def index():
 def course_overview():
     """Display all available courses (demo view)"""
     # TODO: implement course overview logic
-    # For now, you can return a simple page or redirect
     return render_template("course_overview.html")
-    # OR temporarily redirect to upload:
-    # return redirect(url_for('upload'))
 
 
+# STEP 1: Upload grade sheet
 @app.route("/upload", methods=["GET", "POST"])
 def upload():
     if request.method == "POST":
-        # 1. Parse grade sheet
         file = request.files.get("grades_file")
-        completed_course_ids = []
 
-        if file and file.filename != '':
+        if not file or file.filename == '':
+            flash("Please select a file to upload.")
+            return redirect(url_for('upload'))
+
+        try:
+            # Parse the grade sheet
             completed_course_ids = parse_grades_pdf(file)
+
+            if not completed_course_ids:
+                flash("No courses found in the uploaded file. Please check the file and try again.")
+                return redirect(url_for('upload'))
+
+            # Store in session
             session['completed_courses'] = completed_course_ids
 
-        # 2. Get filter parameters
-        no_exam = request.form.get("no_exam") == "true"  # checkbox value
+            # Redirect to review page
+            return redirect(url_for('review_courses'))
+
+        except Exception as e:
+            flash(f"Error parsing grade sheet: {str(e)}")
+            return redirect(url_for('upload'))
+
+    return render_template("upload.html")
+
+
+# STEP 2: Review and confirm courses
+@app.route("/review-courses", methods=["GET", "POST"])
+def review_courses():
+    if request.method == "POST":
+        # Get confirmed courses from form
+        confirmed_courses = request.form.getlist("confirmed_courses")
+
+        if not confirmed_courses:
+            flash("Please select at least one course to continue.")
+            return redirect(url_for('review_courses'))
+
+        # Update session with confirmed courses
+        session['completed_courses'] = confirmed_courses
+
+        # Redirect to filters page
+        return redirect(url_for('filters'))
+
+    # GET request - show review page
+    completed_courses = session.get('completed_courses', [])
+
+    if not completed_courses:
+        flash("No courses found. Please upload your grade sheet first.")
+        return redirect(url_for('upload'))
+
+    return render_template("review_courses.html", completed_courses=completed_courses)
+
+
+# STEP 3: Set filters and weights
+@app.route("/filters", methods=["GET", "POST"])
+def filters():
+    if request.method == "POST":
+        # Get filter parameters
+        no_exam = request.form.get("no_exam") == "true"
         min_credits = float(request.form.get("min_credits", 0))
 
-        # 3. Get ranking weights
+        # Get ranking weights
         semantic_weight = float(request.form.get("semantic_weight", 0.2))
         credits_weight = float(request.form.get("credits_weight", 0.2))
         avg_grade_weight = float(request.form.get("avg_grade_weight", 0.2))
         workload_rating_weight = float(request.form.get("workload_rating_weight", 0.2))
         general_rating_weight = float(request.form.get("general_rating_weight", 0.2))
 
-        # 4. Get other form data
+        # Get other form data
         semester = request.form.get("semester", "WINTER_2025_2026")
         user_query = request.form.get("preferences_text", "")
 
-        # 5. Store in session
+        # Store in session
         session['filters'] = {
             "no_exam": no_exam,
             "min_credits": min_credits,
@@ -66,15 +114,28 @@ def upload():
 
         return redirect(url_for("recommendations"))
 
-    return render_template("upload.html")
+    # GET request - show filters page
+    completed_courses = session.get('completed_courses', [])
+
+    if not completed_courses:
+        flash("No courses found. Please upload your grade sheet first.")
+        return redirect(url_for('upload'))
+
+    confirmed_count = len(completed_courses)
+    return render_template("filters.html", confirmed_count=confirmed_count)
 
 
+# STEP 4: Get recommendations
 @app.get("/recommendations")
 def recommendations():
     # Retrieve from session
     completed_courses = session.get('completed_courses', [])
     filters = session.get('filters', {})
     weights = session.get('weights', {})
+
+    if not completed_courses:
+        flash("No courses found. Please upload your grade sheet first.")
+        return redirect(url_for('upload'))
 
     # Extract parameters
     semester = filters.get('semester', 'WINTER_2025_2026')
