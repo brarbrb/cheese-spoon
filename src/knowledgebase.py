@@ -251,3 +251,4 @@ def recommend_courses(semester_name="WINTER_2025_2026",courses_list=[],no_exam=F
     # print(reranked_courses.head(10)[['title','avg_grade_all_sem',"prerequisites"]])
     return reranked_courses
 # recommend_courses(courses_list=['00960210'])
+# print(recommend_courses(courses_list=['00960210']).columns)

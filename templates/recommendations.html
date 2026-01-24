@@ -247,10 +247,16 @@
           </div>
 
           <div id="chatHistory" class="chat-messages">
-            <div class="chat-message bot">
-              Hi! I'm here to help. Ask me about course workloads, exam formats, or for comparison between two courses.
-            </div>
+          <div class="chat-message bot">
+            שלום! אני כאן כדי לענות על שאלות ספציפיות על קורסים 🎓<br><br>
+            אתה יכול לשאול אותי:<br>
+            • "מה אומרים על עומס העבודה בקורס X?"<br>
+            • "האם יש מבחן בקורס Y?"<br>
+            • "מה ההבדל בקושי בין קורס A לקורס B?"<br>
+            • "איך המרצה Z?"<br>
+            • "כמה זמן לוקח להכין למבחן?"
           </div>
+        </div>
 
           <div class="chat-input-area">
             <div class="input-group">
@@ -453,28 +459,123 @@
     const chatInput = document.getElementById('chatInput');
     const sendBtn = document.getElementById('sendMessageBtn');
     const chatHistory = document.getElementById('chatHistory');
+    let conversationHistory = [];
 
-    function appendMessage(text, sender) {
+    function appendMessage(text, sender, sources = null) {
       const msgDiv = document.createElement('div');
       msgDiv.className = `chat-message ${sender}`;
       msgDiv.innerText = text;
       chatHistory.appendChild(msgDiv);
+
+      // Add sources if provided
+      if (sources && sources.length > 0) {
+        const sourcesDiv = document.createElement('div');
+        sourcesDiv.className = 'chat-sources small muted mt-2';
+        sourcesDiv.innerHTML = '<strong>מקורות:</strong><br>' +
+          sources.map(s => `• ${s.course_title} (${s.course_id}) - ${s.relevance_score}%`).join('<br>');
+        chatHistory.appendChild(sourcesDiv);
+      }
+
       chatHistory.scrollTop = chatHistory.scrollHeight;
     }
 
-    function handleSend() {
+    function showTypingIndicator() {
+      const indicator = document.createElement('div');
+      indicator.className = 'chat-message bot typing-indicator';
+      indicator.id = 'typing';
+      indicator.innerHTML = '<span></span><span></span><span></span>';
+      chatHistory.appendChild(indicator);
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+      const indicator = document.getElementById('typing');
+      if (indicator) indicator.remove();
+    }
+
+    async function handleSend() {
       const text = chatInput.value.trim();
       if(!text) return;
+
+      // Disable input while processing
+      chatInput.disabled = true;
+      sendBtn.disabled = true;
+
       appendMessage(text, 'user');
+      conversationHistory.push({ role: 'user', content: text });
       chatInput.value = '';
-      setTimeout(() => {
-        appendMessage("I'm just a demo interface right now. I'll be connected to a real LLM soon!", 'bot');
-      }, 800);
+
+      showTypingIndicator();
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: text,
+            history: conversationHistory.slice(-6) // Keep last 3 exchanges
+          })
+        });
+
+        const data = await response.json();
+
+        removeTypingIndicator();
+
+        if (data.success) {
+          appendMessage(data.response, 'bot', data.sources);
+          conversationHistory.push({ role: 'assistant', content: data.response });
+        } else {
+          appendMessage('מצטער, אירעה שגיאה. אנא נסה שוב.', 'bot');
+        }
+
+      } catch (error) {
+        console.error('Error:', error);
+        removeTypingIndicator();
+        appendMessage('שגיאה בחיבור לשרת. אנא נסה שוב.', 'bot');
+      } finally {
+        // Re-enable input
+        chatInput.disabled = false;
+        sendBtn.disabled = false;
+        chatInput.focus();
+      }
     }
 
     if (sendBtn) sendBtn.addEventListener('click', handleSend);
     if (chatInput) chatInput.addEventListener('keypress', (e) => {
-      if(e.key === 'Enter') handleSend();
+      if(e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    });
+
+    // Load course summaries on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+      const coursePlaceholders = document.querySelectorAll('.ai-description-placeholder');
+
+      coursePlaceholders.forEach(async (placeholder, index) => {
+        const card = placeholder.closest('.course-card');
+        const courseTitle = card.querySelector('h5').innerText;
+
+        // Extract course ID from title (assuming format like "123456 - Course Name")
+        const idMatch = courseTitle.match(/(\d{6,8})/);
+        if (!idMatch) return;
+
+        const courseId = idMatch[1];
+
+        try {
+          const response = await fetch(`/api/course-summary/${courseId}`);
+          const data = await response.json();
+
+          if (data.success) {
+            placeholder.innerText = data.summary;
+            placeholder.classList.remove('text-muted');
+          }
+        } catch (error) {
+          console.error(`Error loading summary for ${courseId}:`, error);
+        }
+      });
     });
   </script>
 </body>
