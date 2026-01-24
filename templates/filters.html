@@ -5,36 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CheeseSpoon — Set Filters</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background-color: #f8f9fa;
-    }
-
-    .navbar {
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .navbar-brand {
-      font-weight: 600;
-      font-size: 1.25rem;
-    }
-
-    .brand-logo {
-      height: 30px;
-      margin-left: 8px;
-    }
-
-    .feature-card {
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    .muted {
-      color: #6c757d;
-    }
-
     .importance-selector {
       display: flex;
       gap: 0;
@@ -80,9 +52,9 @@
 <body>
   <nav id="top-navbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
     <div class="container">
-      <a class="navbar-brand d-flex align-items-center" href="#">
+      <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
         <span>CheeseSpoon</span>
-        <img src="https://via.placeholder.com/30x30?text=CS" alt="CheeseSpoon" class="brand-logo" />
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="CheeseSpoon" class="brand-logo" />
       </a>
     </div>
   </nav>
@@ -91,11 +63,19 @@
     <div class="row justify-content-center">
       <div class="col-lg-10">
 
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="alert alert-secondary" role="alert">
+              {{ messages[0] }}
+            </div>
+          {% endif %}
+        {% endwith %}
+
         <div class="feature-card p-4">
           <h4 class="mb-1">Set Your Preferences & Filters</h4>
           <div class="muted small mb-4">
             Step 3 of 3: Configure filters and ranking weights for personalized recommendations.
-            <br><strong>15</strong> courses confirmed from your grade sheet.
+            <br><strong>{{ confirmed_count }}</strong> courses confirmed from your grade sheet.
           </div>
 
           <form method="POST" id="filtersForm">
@@ -169,7 +149,7 @@
                       Weight: <strong class="weight-value">0.20</strong>
                     </span>
                   </div>
-                  <input type="hidden" name="semantic_importance" value="3">
+                  <input type="hidden" name="semantic_importance" value="2">
                   <input type="hidden" name="semantic_weight" value="0.20">
                 </div>
 
@@ -188,7 +168,7 @@
                       Weight: <strong class="weight-value">0.20</strong>
                     </span>
                   </div>
-                  <input type="hidden" name="credits_importance" value="3">
+                  <input type="hidden" name="credits_importance" value="2">
                   <input type="hidden" name="credits_weight" value="0.20">
                 </div>
 
@@ -207,7 +187,7 @@
                       Weight: <strong class="weight-value">0.20</strong>
                     </span>
                   </div>
-                  <input type="hidden" name="avg_grade_importance" value="3">
+                  <input type="hidden" name="avg_grade_importance" value="2">
                   <input type="hidden" name="avg_grade_weight" value="0.20">
                 </div>
               </div>
@@ -229,7 +209,7 @@
                       Weight: <strong class="weight-value">0.20</strong>
                     </span>
                   </div>
-                  <input type="hidden" name="workload_rating_importance" value="3">
+                  <input type="hidden" name="workload_rating_importance" value="2">
                   <input type="hidden" name="workload_rating_weight" value="0.20">
                 </div>
 
@@ -248,7 +228,7 @@
                       Weight: <strong class="weight-value">0.20</strong>
                     </span>
                   </div>
-                  <input type="hidden" name="general_rating_importance" value="3">
+                  <input type="hidden" name="general_rating_importance" value="2">
                   <input type="hidden" name="general_rating_weight" value="0.20">
                 </div>
               </div>
@@ -273,7 +253,7 @@
             </div>
 
             <div class="d-flex justify-content-between">
-              <a class="btn btn-outline-secondary" href="#">← Back to Review</a>
+              <a class="btn btn-outline-secondary" href="{{ url_for('review_courses') }}">← Back to Review</a>
               <button class="btn btn-dark" type="submit">Get Recommendations →</button>
             </div>
           </form>
@@ -309,13 +289,18 @@
     };
 
     function normalizeWeights() {
-      // Calculate total importance
-      const total = Object.values(importanceValues).reduce((sum, val) => sum + val, 0);
+      // Calculate total importance (shift values: 1->0, 2->1, 3->2, 4->3, 5->4)
+      const adjustedValues = {};
+      Object.keys(importanceValues).forEach(key => {
+        adjustedValues[key] = importanceValues[key] - 1;
+      });
+
+      const total = Object.values(adjustedValues).reduce((sum, val) => sum + val, 0);
 
       // Normalize to weights that sum to 1.0
       const weights = {};
-      Object.keys(importanceValues).forEach(key => {
-        weights[key] = total > 0 ? importanceValues[key] / total : 0.2;
+      Object.keys(adjustedValues).forEach(key => {
+        weights[key] = total > 0 ? adjustedValues[key] / total : 0;
       });
 
       return weights;
@@ -364,10 +349,10 @@
           const value = parseInt(btn.dataset.value);
           importanceValues[param] = value;
 
-          // Update hidden importance input
+          // Update hidden importance input (send adjusted value: 1->0, 2->1, etc.)
           const importanceInput = selector.closest('.form-group').querySelector(`input[name="${param}_importance"]`);
           if (importanceInput) {
-            importanceInput.value = value;
+            importanceInput.value = value - 1;  // Send adjusted value to backend
           }
 
           // Recalculate and update weights

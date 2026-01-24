@@ -223,6 +223,7 @@ def rerank(df,semantic_weight=0.2,credits_weight=0.2,avg_grade_weight=0.2,worklo
 
     # Normalize general_rating (divide by 5)
     general_rating_normalized = df_ranked['general_rating'] / 5
+    print('SEMANTIC SCORE')
 
     # Calculate combined score
     df_ranked['combined_score'] = (
