@@ -55,37 +55,96 @@
   </nav>
 
   <main class="container my-4">
+    <div class="mb-3">
+        <a href="{{ url_for('filters') }}" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left mr-1"></i> Back to Filters
+        </a>
+    </div>
+
     <div class="row">
-      <div class="col-lg-8">
+      <div class="col-lg-7">
         <h4 class="mb-1">Course Recommendations</h4>
         <div class="muted small mb-3">
           All eligible courses ranked by your preferences
         </div>
 
-        <div class="feature-card p-3 mb-3" style="height: auto !important; min-height: auto;">
+        <div class="feature-card p-3 mb-3" style="height: auto !important;">
           <div class="d-flex justify-content-between align-items-start flex-wrap">
             <div>
-              <div class="muted small mb-2"><strong>Applied Filters</strong></div>
+              <div class="muted small mb-2"><strong>Current Configuration</strong></div>
               <div class="small">
-                <span class="muted">Semester:</span> {{ filters.semester }}<br>
-                <span class="muted">Completed:</span> {{ filters.completed_count }}<br>
-                <span class="muted">Min credits:</span> {{ filters.min_credits }}
+                <span class="badge badge-light border">{{ filters.semester }}</span>
+                {% if user_query %}
+                <span class="badge badge-info text-white border" title="{{ user_query }}">Has custom query</span>
+                {% endif %}
+                {% if filters.no_exam == "Yes" %}
+                <span class="badge badge-success border">No Exams</span>
+                {% endif %}
               </div>
             </div>
             <div class="text-right">
-              <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('upload') }}">Edit preferences</a>
+              <button class="btn btn-sm btn-outline-primary" type="button" data-toggle="collapse" data-target="#editFiltersCollapse" aria-expanded="false" aria-controls="editFiltersCollapse">
+                <i class="fas fa-sliders-h mr-1"></i> Modify & Rerank
+              </button>
             </div>
           </div>
-          {% if user_query %}
-          <div class="alert alert-light small mt-3 mb-0">
-            <strong>Your query:</strong> {{ user_query }}
+
+          <div class="collapse mt-3" id="editFiltersCollapse">
+            <hr>
+            <form action="{{ url_for('filters') }}" method="POST">
+                <input type="hidden" name="semester" value="{{ filters.semester }}">
+                
+                <div class="form-group">
+                    <label class="small font-weight-bold">Refine your prompt</label>
+                    <textarea class="form-control form-control-sm" name="preferences_text" rows="2" placeholder="e.g. I want easy courses with Python...">{{ user_query }}</textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="col-6">
+                        <div class="custom-control custom-checkbox small pt-2">
+                            <input type="checkbox" class="custom-control-input" id="no_exam" name="no_exam" value="true" {% if filters.no_exam == "Yes" %}checked{% endif %}>
+                            <label class="custom-control-label" for="no_exam">No Exams</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <label class="small muted mb-0">Min Credits</label>
+                        <input type="number" class="form-control form-control-sm" name="min_credits" value="{{ filters.min_credits }}" step="0.5" min="0">
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <label class="small font-weight-bold mb-2">Adjust Weights (0.0 - 1.0)</label>
+                    
+                    <div class="d-flex align-items-center mb-1">
+                        <small class="col-4 p-0">Semantic Match</small>
+                        <input type="range" class="custom-range col-6" name="semantic_weight" min="0" max="1" step="0.1" value="{{ weights.semantic }}">
+                    </div>
+
+                    <div class="d-flex align-items-center mb-1">
+                        <small class="col-4 p-0">High Avg Grade</small>
+                        <input type="range" class="custom-range col-6" name="avg_grade_weight" min="0" max="1" step="0.1" value="{{ weights.avg_grade }}">
+                    </div>
+
+                    <div class="d-flex align-items-center mb-1">
+                        <small class="col-4 p-0">Low Workload</small>
+                        <input type="range" class="custom-range col-6" name="workload_rating_weight" min="0" max="1" step="0.1" value="{{ weights.workload_rating }}">
+                    </div>
+                    
+                    <input type="hidden" name="credits_weight" value="{{ weights.credits }}">
+                    <input type="hidden" name="general_rating_weight" value="{{ weights.general_rating }}">
+                </div>
+
+                <div class="text-right mt-3">
+                    <button type="submit" class="btn btn-dark btn-sm">
+                        <i class="fas fa-sync-alt mr-1"></i> Rerank Courses
+                    </button>
+                </div>
+            </form>
           </div>
-          {% endif %}
         </div>
 
-        <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="mb-2">
           <div class="muted small">Found <strong>{{ courses|length }}</strong> eligible courses</div>
-          <button id="showAllBtn" class="btn btn-sm btn-outline-secondary">Show all</button>
         </div>
 
         <div id="coursesList">
@@ -95,20 +154,19 @@
               <div class="flex-grow-1">
                 <div class="d-flex align-items-center flex-wrap">
                   <span class="badge badge-secondary mr-2">#{{ loop.index }}</span>
-                  <span class="kbd-pill mr-2">{{ course.ID }}</span>
                   <h5 class="mb-0">{{ course.title }}</h5>
                   <span class="muted small ml-2">({{ "%.1f"|format(course.credits) }} pts)</span>
                 </div>
                 <div class="mt-2 small">
-                  <span class="muted">Avg grade:</span> {{ "%.0f"|format(course.avg_grade_all_sem) }}%
+                  <span class="muted">Avg Grade:</span> {{ "%.0f"|format(course.avg_grade_all_sem) }}
                   <span class="ml-2 muted">|</span>
-                  <span class="ml-2 muted">General rating:</span> {{ "%.1f"|format(course.general_rating) }}/5
+                  <span class="ml-2 muted">General:</span> {{ "%.1f"|format(course.general_rating) }}/5
                   <span class="ml-2 muted">|</span>
                   <span class="ml-2 muted">Workload:</span> {{ "%.1f"|format(course.workload_rating) }}/5
                 </div>
               </div>
               <div class="text-right ml-3">
-                <div class="muted small">Combined Score</div>
+                <div class="muted small">Match</div>
                 <div class="fit-score">{{ "%.0f"|format(course.combined_score * 100) }}%</div>
               </div>
             </div>
@@ -117,24 +175,48 @@
               <div class="fit-bar-fill" style="width: {{ (course.combined_score * 100)|int }}%;"></div>
             </div>
 
-            <div class="row small">
-              <div class="col-md-6">
-                <div class="muted"><strong>Quick info</strong></div>
-                <div><span class="muted">Exam:</span> {{ course.moed_a if course.moed_a else 'No exam' }}</div>
-                <div><span class="muted">Lecturer:</span> {{ course.lecturer if course.lecturer else 'N/A' }}</div>
+            {% if course.moed_a %}
+            <div class="row small mb-2">
+              <div class="col-6">
+                <div class="p-2 border rounded bg-light">
+                    <div class="muted font-weight-bold">Moed A</div>
+                    <div>{{ course.moed_a }}</div>
+                </div>
               </div>
-              <div class="col-md-6">
-                <div class="muted"><strong>Score breakdown</strong></div>
-                <div><span class="muted">Semantic:</span> {{ "%.2f"|format(course.semantic_score) }}</div>
-                <div><span class="muted">Combined:</span> {{ "%.2f"|format(course.combined_score) }}</div>
+              <div class="col-6">
+                <div class="p-2 border rounded bg-light">
+                    <div class="muted font-weight-bold">Moed B</div>
+                    <div>{{ course.moed_b if course.moed_b else 'TBD' }}</div>
+                </div>
               </div>
             </div>
+            {% else %}
+            <div class="mb-2">
+                <div class="p-2 border rounded bg-light text-center">
+                    <!-- <div class="muted font-weight-bold text-success">
+                        <i class="fas fa-check-circle mr-1"></i> No Exam
+                    </div> -->
+                    <div class="small text-muted">No Exam. Grade based on projects/assignments</div>
+                </div>
+            </div>
+            {% endif %}
 
-            <div class="d-flex justify-content-between mt-3">
-              <a class="btn btn-sm btn-outline-secondary"
-                 href="{{ url_for('course_overview', course_id=course.ID) }}">
-                View details
-              </a>
+            <div class="mt-2">
+                <div class="small font-weight-bold mb-1">Course Highlights</div>
+                <div class="ai-description-placeholder small">
+                    Brief course description / main topics will appear here...
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-3 align-items-center">
+              <button class="btn btn-sm btn-link pl-0 text-secondary" 
+                      data-toggle="modal" 
+                      data-target="#courseDetailsModal"
+                      data-title="{{ course.title }}"
+                      data-id="{{ course.ID }}">
+                 <i class="fas fa-expand mr-1"></i> Full Details
+              </button>
+              
               <button
                 class="btn btn-sm btn-dark add-to-wishlist-btn"
                 type="button"
@@ -145,25 +227,11 @@
                 Add to wishlist
               </button>
             </div>
-
-            {% if course.prerequisites %}
-            <div class="mt-2">
-              <button class="btn btn-sm btn-link p-0" type="button"
-                      data-toggle="collapse" data-target="#prereq-{{ loop.index }}">
-                Show prerequisites
-              </button>
-              <div id="prereq-{{ loop.index }}" class="collapse mt-2">
-                <div class="alert alert-light small mb-0">
-                  <strong>Prerequisites:</strong> {{ course.prerequisites|join(', ') }}
-                </div>
-              </div>
-            </div>
-            {% endif %}
           </div>
           {% endfor %}
 
           {% if courses|length == 0 %}
-          <div class="alert alert-light">No courses found matching your criteria.</div>
+          <div class="alert alert-light">No courses found matching your criteria. Try adjusting the filters.</div>
           {% endif %}
         </div>
 
@@ -172,7 +240,7 @@
         </div>
       </div>
 
-      <div class="col-lg-4">
+      <div class="col-lg-5">
         <div class="chat-container">
           <div class="chat-header d-flex justify-content-between align-items-center">
             <strong><i class="fas fa-robot mr-2"></i>CheeseSpoon Assistant</strong>
@@ -228,6 +296,25 @@
     </div>
   </div>
 
+  <div class="modal fade" id="courseDetailsModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="detailsModalTitle">Course Details</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="text-center py-5 muted">
+            <i class="fas fa-hammer fa-2x mb-3"></i><br>
+            Course summary and syllabus details will appear here.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -239,25 +326,32 @@
     const allCards = document.querySelectorAll('.course-card');
     const showMoreBtn = document.getElementById('showMoreBtn');
     const showMoreContainer = document.getElementById('showMoreContainer');
-    const showAllBtn = document.getElementById('showAllBtn');
 
     function updateDisplay() {
       allCards.forEach((card, idx) => {
         card.style.display = idx < currentlyShowing ? 'block' : 'none';
       });
-      showMoreContainer.style.display = (currentlyShowing < allCards.length) ? 'block' : 'none';
+      if (showMoreContainer) {
+          showMoreContainer.style.display = (currentlyShowing < allCards.length) ? 'block' : 'none';
+      }
     }
 
     if(showMoreBtn) showMoreBtn.addEventListener('click', () => {
       currentlyShowing += INCREMENT;
       updateDisplay();
     });
-
-    if(showAllBtn) showAllBtn.addEventListener('click', () => {
-      currentlyShowing = allCards.length;
-      updateDisplay();
-    });
+    
     updateDisplay();
+
+    // --- Details Modal Logic ---
+    $('#courseDetailsModal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var title = button.data('title');
+      var id = button.data('id');
+      var modal = $(this);
+      modal.find('.modal-title').text(title + ' (' + id + ')');
+      // Later you can fetch content via AJAX here using the ID
+    });
 
     // --- Wishlist Logic ---
     const wishlist = new Map();
@@ -328,8 +422,6 @@
          wishlist.set(id, { id, name, points });
          updateWishlistUI();
          toggleButtonState(id, true);
-         
-         // [DELETED] Toast popup trigger was here
        }
     }
 
@@ -380,8 +472,8 @@
       }, 800);
     }
 
-    sendBtn.addEventListener('click', handleSend);
-    chatInput.addEventListener('keypress', (e) => {
+    if (sendBtn) sendBtn.addEventListener('click', handleSend);
+    if (chatInput) chatInput.addEventListener('keypress', (e) => {
       if(e.key === 'Enter') handleSend();
     });
   </script>
