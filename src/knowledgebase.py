@@ -203,7 +203,11 @@ def rerank(df,semantic_weight=0.2,credits_weight=0.2,avg_grade_weight=0.2,worklo
     max_credits = df["credits"].max()
     # Create a copy to avoid modifying original
     df_ranked = df.copy()
-
+    df_ranked['workload_rating'] = df_ranked['workload_rating'].fillna(2.5)  # Neutral rating
+    df_ranked['general_rating'] = df_ranked['general_rating'].fillna(2.5)  # Neutral rating
+    df_ranked['credits'] = df_ranked['credits'].fillna(0)
+    df_ranked['avg_grade_all_sem'] = df_ranked['avg_grade_all_sem'].fillna(DEFAULT_AVG_GRADE)
+    df_ranked['semantic_score'] = df_ranked['semantic_score'].fillna(0)
     # Normalize semantic score (assuming it's already 0-1 from Pinecone)
     # If score doesn't exist (no semantic search), default to 0
     semantic_score = df_ranked["semantic_score"]
