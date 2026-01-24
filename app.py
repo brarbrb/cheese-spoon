@@ -35,7 +35,12 @@ def course_overview():
                     # 2. Parse the review summary string into structured parts
                     summary_parts = parse_review_summary(raw_data.get('reviews_summary', ''))
                     
-                    # 3. Calculate average grade from the JSON dictionary
+                    # 3. Process the summaries into (Overview, Quotes)
+                    interest_data = split_summary_and_quotes(summary_parts.get('interest', ''))
+                    workload_data = split_summary_and_quotes(summary_parts.get('workload', ''))
+                    bottom_data = split_summary_and_quotes(summary_parts.get('bottom_line', ''))
+                    
+                    # 4. Calculate average grade from the JSON dictionary
                     avg_grade = 0
                     try:
                         grades_dict = json.loads(raw_data.get('avg_grades', '{}'))
@@ -44,7 +49,7 @@ def course_overview():
                     except:
                         avg_grade = 0
 
-                    # 4. Parse prerequisites
+                    # 5. Parse prerequisites
                     prereqs = []
                     try:
                         prereqs = json.loads(raw_data.get('prerequisites', '[]'))
@@ -56,7 +61,7 @@ def course_overview():
                     except:
                         prereqs = []
 
-                    # 5. Build the display object
+                    # 6. Build the display object
                     course_data = {
                         "id": raw_data.get('id', clean_id),
                         "name": raw_data.get('title', 'Unknown Course'),
@@ -64,10 +69,10 @@ def course_overview():
                         "rating_5": float(raw_data.get('general_rating', 0) or 0),
                         "workload_rating": float(raw_data.get('workload_rating', 0) or 0),
                         
-                        # Structured Summary
-                        "summary_interest": summary_parts.get('interest'),
-                        "summary_workload": summary_parts.get('workload'),
-                        "summary_bottom_line": summary_parts.get('bottom_line'),
+                        # Structured Summaries (Now Dicts with 'overview' and 'quotes')
+                        "summary_interest": interest_data,
+                        "summary_workload": workload_data,
+                        "summary_bottom_line": bottom_data,
                         
                         # Facts
                         "prereqs": prereqs,
@@ -76,10 +81,8 @@ def course_overview():
                         "avg_grade": avg_grade
                     }
 
-                    # 6. Get "Similar Courses" (Alternatives)
-                    # We use the course name as a search query to find semantic matches
+                    # 7. Get "Similar Courses" (Alternatives)
                     try:
-                        # Fetch recommendations based on the title
                         recs_df = recommend_courses(
                             semester_name=semester,
                             courses_list=[clean_id], # Exclude current course
@@ -91,7 +94,6 @@ def course_overview():
                             general_rating_weight=0
                         )
                         
-                        # Take top 3
                         if not recs_df.empty:
                             alternatives = recs_df.head(3).to_dict('records')
                     except Exception as e:
@@ -104,7 +106,6 @@ def course_overview():
                 flash("An error occurred while fetching course details.")
 
     return render_template("course_overview.html", course=course_data, query=query, alternatives=alternatives)
-
 
 # STEP 1: Upload grade sheet
 @app.route("/upload", methods=["GET", "POST"])
@@ -283,12 +284,16 @@ def recommendations():
         # Convert to dicts
         courses = ranked_df.to_dict('records')
 
-        # 2. Loop through and add the parsed fields to each course dictionary
+        # 4. Loop through and add the parsed fields to each course dictionary
         for course in courses:
+            # Parse the raw summary string into Interest/Workload/BottomLine
             summary_parts = parse_review_summary(course.get('reviews_summary', ''))
-            course['summary_interest'] = summary_parts['interest']
-            course['summary_workload'] = summary_parts['workload']
-            course['summary_bottom_line'] = summary_parts['bottom_line']
+            
+            # SPLIT each part into 'overview' and 'quotes' for the UI
+            course['summary_interest'] = split_summary_and_quotes(summary_parts['interest'])
+            course['summary_workload'] = split_summary_and_quotes(summary_parts['workload'])
+            course['summary_bottom_line'] = split_summary_and_quotes(summary_parts['bottom_line'])
+            
     except Exception as e:
         print(f"Rec Error: {e}")
         flash(f"Error: {str(e)}")
@@ -437,5 +442,37 @@ def clear_wishlist():
     flash("Wishlist cleared.", "success")
     return redirect(request.referrer or url_for('index'))
 
+
+# --- ADD THIS HELPER FUNCTION TO app.py ---
+def split_summary_and_quotes(text):
+    """Separates general summary text from bullet-point quotes."""
+    if not text:
+        return {'overview': '', 'quotes': []}
+    
+    lines = text.split('\n')
+    overview_lines = []
+    quotes = []
+    
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        
+        # Check if line looks like a bullet point (quote)
+        if line.startswith(('*', '-', '•')):
+            # Remove the bullet and surrounding quotes
+            clean_quote = line.lstrip('*-• ').strip()
+            if clean_quote.startswith('"') and clean_quote.endswith('"'):
+                clean_quote = clean_quote[1:-1]
+            quotes.append(clean_quote)
+        else:
+            # It is the objective summary text
+            overview_lines.append(line)
+            
+    return {
+        'overview': ' '.join(overview_lines),
+        'quotes': quotes
+    }
+    
 if __name__ == "__main__":
     app.run(debug=True)

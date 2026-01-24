@@ -30,8 +30,25 @@
 
       <div id="navContent" class="collapse navbar-collapse">
         <ul class="navbar-nav ml-auto align-items-lg-center">
-          <li class="nav-item"><a class="btn btn-sm btn-outline-secondary mr-2" href="{{ url_for('index') }}">Home</a></li>
-          <li class="nav-item"><a class="btn btn-sm btn-outline-secondary mr-2" href="{{ url_for('course_overview') }}">Course Overview</a></li>
+          
+          <li class="nav-item">
+            <a class="btn btn-sm btn-outline-secondary mr-2" href="{{ url_for('index') }}">Home</a>
+          </li>
+
+          {% if request.endpoint == 'course_overview' %}
+              <li class="nav-item">
+                <a class="btn btn-sm btn-primary mr-2 shadow-sm" href="{{ url_for('upload') }}">
+                   <i class="fas fa-magic mr-1"></i> Personalized Recommendations
+                </a>
+              </li>
+          {% else %}
+              <li class="nav-item">
+                <a class="btn btn-sm btn-outline-secondary mr-2" href="{{ url_for('course_overview') }}">
+                   <i class="fas fa-search mr-1"></i> Course Overview
+                </a>
+              </li>
+          {% endif %}
+
           <li class="nav-item d-none d-lg-block">
             <button class="btn btn-sm btn-dark" data-toggle="modal" data-target="#wishlistModal">
               <i class="fas fa-shopping-cart mr-1"></i> Wishlist
@@ -67,9 +84,10 @@
           <h5 class="modal-title">Your Wishlist</h5>
           <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
         </div>
+        
         <div class="modal-body" id="wishlist-modal-body">
           {% if wishlist_count == 0 %}
-              <div class="text-center muted py-4">Your wishlist is empty.</div>
+              <div class="text-center muted py-4" id="empty-msg">Your wishlist is empty.</div>
           {% else %}
               <div class="list-group">
               {% for item in wishlist %}
@@ -78,9 +96,12 @@
                           <h6 class="mb-0">{{ item.name }}</h6>
                           <small class="text-muted">{{ item.id }} | {{ item.points }} pts</small>
                       </div>
-                      <button class="btn btn-sm btn-outline-danger remove-wishlist-btn" data-id="{{ item.id }}">
-                          <i class="fas fa-trash"></i>
-                      </button>
+                      <form action="{{ url_for('remove_from_wishlist') }}" method="POST" class="ajax-remove-wishlist" style="margin:0;">
+                          <input type="hidden" name="course_id" value="{{ item.id }}">
+                          <button type="submit" class="btn btn-sm btn-outline-danger">
+                              <i class="fas fa-trash"></i>
+                          </button>
+                      </form>
                   </div>
               {% endfor %}
               </div>
@@ -89,9 +110,10 @@
               </div>
           {% endif %}
         </div>
+
         <div class="modal-footer">
           <form action="{{ url_for('clear_wishlist') }}" method="POST">
-             <button type="button" class="btn btn-outline-secondary" onclick="return confirm('Clear all?');">Clear</button>
+               <button type="submit" id="clearWishlistBtn" class="btn btn-outline-secondary" {% if wishlist_count == 0 %}disabled{% endif %} onclick="return confirm('Clear all?');">Clear</button>
           </form>
           <button type="button" class="btn btn-dark">Export PDF</button>
         </div>
@@ -108,8 +130,7 @@
         e.preventDefault();
         const form = $(this);
         const btn = form.find('button[type="submit"]');
-        const originalText = btn.html();
-
+        
         $.ajax({
             url: "{{ url_for('add_to_wishlist') }}",
             type: "POST",
@@ -119,44 +140,94 @@
                     // Update Badge
                     $('.wishlist-badge').text(response.count);
                     
-                    // Update Button Visuals (Green & Checked)
+                    // Update Button Visuals
                     btn.removeClass('btn-dark btn-outline-secondary').addClass('btn-success');
                     btn.html('<i class="fas fa-check mr-1"></i> Added');
-                    btn.prop('disabled', true); // Prevent double add
+                    btn.prop('disabled', true);
                     
-                    // Optional: You could reload the modal content here if you want perfect sync
-                    // For now, we rely on page refresh to populate the modal list perfectly, 
-                    // or we could append to the list via JS.
+                    // --- DYNAMICALLY UPDATE MODAL CONTENT ---
+                    const modalBody = $('#wishlist-modal-body');
+                    const courseId = form.find('input[name="course_id"]').val();
+                    const courseName = form.find('input[name="course_name"]').val();
+                    const coursePoints = form.find('input[name="course_points"]').val();
+
+                    // If it was empty, create the structure
+                    if(modalBody.find('#empty-msg').length > 0) {
+                        modalBody.html(`
+                            <div class="list-group"></div>
+                            <div class="mt-3 text-right">
+                                <strong class="mr-2">Total:</strong> <span id="wishlist-total">0</span> pts
+                            </div>
+                        `);
+                        $('#clearWishlistBtn').prop('disabled', false);
+                    }
+
+                    // Append the new item
+                    const newItem = `
+                        <div class="list-group-item d-flex justify-content-between align-items-center" id="wishlist-item-${courseId}">
+                            <div>
+                                <h6 class="mb-0">${courseName}</h6>
+                                <small class="text-muted">${courseId} | ${coursePoints} pts</small>
+                            </div>
+                            <form action="{{ url_for('remove_from_wishlist') }}" method="POST" class="ajax-remove-wishlist" style="margin:0;">
+                                <input type="hidden" name="course_id" value="${courseId}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>`;
+                    
+                    // Only append if not already there (safety check)
+                    if(modalBody.find(`#wishlist-item-${courseId}`).length === 0) {
+                        modalBody.find('.list-group').append(newItem);
+                    }
+
+                    // Update total
+                    $('#wishlist-total').text(response.total);
                 }
             },
-            error: function() {
-                alert('Error adding to wishlist');
-            }
+            error: function() { alert('Error connecting to server'); }
         });
     });
 
-    // 2. REMOVE FROM WISHLIST (AJAX - Optional, for inside Modal)
-    $(document).on('click', '.remove-wishlist-btn', function() {
-        const btn = $(this);
-        const courseId = btn.data('id');
+    // 2. REMOVE FROM WISHLIST (AJAX)
+    $(document).on('submit', '.ajax-remove-wishlist', function(e) {
+        e.preventDefault();
+        const form = $(this);
+        const courseId = form.find('input[name="course_id"]').val();
         
         $.ajax({
             url: "{{ url_for('remove_from_wishlist') }}",
             type: "POST",
-            data: { course_id: courseId },
+            data: form.serialize(),
             success: function(response) {
-                // Remove item from modal list
-                $('#wishlist-item-' + courseId).remove();
-                
-                // Update Badge
-                $('.wishlist-badge').text(response.count);
-                
-                // Reset the "Add" button on the main page if it exists
-                const addBtn = $(`form.ajax-add-wishlist input[value="${courseId}"]`).closest('form').find('button');
-                addBtn.removeClass('btn-success').addClass('btn-dark').prop('disabled', false).html('Add to wishlist');
+                if(response.status === 'success') {
+                    // Update Badge
+                    $('.wishlist-badge').text(response.count);
+                    
+                    // Remove Item from Modal DOM
+                    $('#wishlist-item-' + courseId).slideUp(function() { $(this).remove(); });
+                    
+                    // Update Total
+                    $('#wishlist-total').text(response.total);
+                    
+                    // Handle Empty State
+                    if(response.count === 0) {
+                        setTimeout(() => {
+                            $('#wishlist-modal-body').html('<div class="text-center muted py-4" id="empty-msg">Your wishlist is empty.</div>');
+                            $('#clearWishlistBtn').prop('disabled', true);
+                        }, 300); // wait for slideUp
+                    }
 
-                // Update Total
-                $('#wishlist-total').text(response.total);
+                    // Reset the "Add" button on the main page if it exists
+                    const addForm = $(`input[name="course_id"][value="${courseId}"]`).closest('.ajax-add-wishlist');
+                    if(addForm.length > 0) {
+                        const btn = addForm.find('button');
+                        btn.removeClass('btn-success').addClass('btn-dark');
+                        btn.html('Add to wishlist'); 
+                        btn.prop('disabled', false);
+                    }
+                }
             }
         });
     });

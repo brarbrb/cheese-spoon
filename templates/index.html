@@ -5,7 +5,7 @@
 {% block content %}
     <section class="hero p-4 p-lg-5 mb-4">
       <div class="row align-items-center">
-        <div class="col-lg-7">
+        <div class="col-lg-6">
           <div class="mb-2 muted small">
             Technion course selection, without the overload
           </div>
@@ -16,7 +16,7 @@
           </h1>
 
           <p class="muted mb-4">
-            Personalized course recommendations from your grades, preferences, and reviews.
+            Personalized course recommendations based on your academic history, interests, and student reviews.
           </p>
 
           <div class="d-flex flex-wrap align-items-center">
@@ -35,32 +35,49 @@
           </div>
         </div>
 
-        <div class="col-lg-5 mt-4 mt-lg-0">
-          <div class="fake-screenshot p-3">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <strong class="small">Preview</strong>
+        <div class="col-lg-6 mt-4 mt-lg-0">
+          <div class="fake-screenshot p-3" style="background: #f8f9fa; border-radius: 12px; border: 1px solid #e9ecef;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <strong class="small text-muted" style="letter-spacing: 0.5px;">YOUR BEST FITS</strong>
+              <span class="badge badge-pill badge-primary" style="opacity: 0.8;">Winter 2025</span>
             </div>
 
-            <div class="list-group">
-              <div class="list-group-item d-flex justify-content-between align-items-center">
-                Eligible courses
-                <span class="badge badge-dark badge-pill">23</span>
-              </div>
-              <div class="list-group-item d-flex justify-content-between align-items-center">
-                Recommended (Top-K)
-                <span class="badge badge-secondary badge-pill">8</span>
-              </div>
-              <div class="list-group-item d-flex justify-content-between align-items-center">
-                Bottlenecks detected
-                <span class="badge badge-light badge-pill border">3</span>
-              </div>
-              <div class="list-group-item d-flex justify-content-between align-items-center">
-                New review insights
-                <span class="unread-count-badge-container">
-                  <span class="unread-count-badge">12</span>
-                </span>
-              </div>
+            <div class="card border-0 shadow-sm mb-3" style="transform: scale(1.02); border-left: 4px solid #28a745 !important;">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="font-weight-bold mb-1">Introduction to Machine Learning</h6>
+                            <div class="small text-muted">236756 | 3.5 pts</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-success font-weight-bold small">98% Match</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-center mt-2 mb-2" style="font-size: 0.8rem;">
+                         <span class="mr-3"><i class="fas fa-star text-warning mr-1"></i>4.6/5</span>
+                         <span class="mr-3"><i class="fas fa-graduation-cap text-muted mr-1"></i>Avg: 88</span>
+                         <span class="text-danger"><i class="fas fa-fire mr-1"></i>High Workload</span>
+                    </div>
+
+                    <div class="bg-light p-2 rounded small text-secondary mt-2" style="font-size: 0.85rem; line-height: 1.4;">
+                        <strong class="text-dark">Bottom Line:</strong> Essential for your data science track. Students praise the content but warn about the heavy math load.
+                    </div>
+                </div>
             </div>
+
+            <div class="card border-0 shadow-sm" style="opacity: 0.6;">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="font-weight-bold mb-0">Web Programming</h6>
+                            <div class="small text-muted">236319 | 3.0 pts</div>
+                        </div>
+                        <div class="text-success font-weight-bold small">85% Match</div>
+                    </div>
+                </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -77,76 +94,37 @@
           </div>
           <div class="modal-body">
             <div class="row">
-              <div class="col-md-6 mb-3">
-                <div class="feature-card p-3">
+              <div class="col-md-4 mb-3">
+                <div class="feature-card p-3 h-100">
                   <div class="muted small mb-1">Step 1</div>
-                  <strong>Upload grade sheet</strong>
-                  <div class="muted small mt-2">Parse completed courses & credits.</div>
+                  <strong>Upload PDF</strong>
+                  <div class="muted small mt-2">
+                    Upload your latest grade sheet. We auto-extract courses you've already completed.
+                  </div>
                 </div>
               </div>
-              <div class="col-md-6 mb-3">
-                <div class="feature-card p-3">
+              <div class="col-md-4 mb-3">
+                <div class="feature-card p-3 h-100">
                   <div class="muted small mb-1">Step 2</div>
-                  <strong>Eligibility filter</strong>
-                  <div class="muted small mt-2">Validate prerequisites + offered courses.</div>
+                  <strong>Set Goals</strong>
+                  <div class="muted small mt-2">
+                    Define your vibe (e.g. "Easy semester" or "Focus on AI") and set workload filters.
+                  </div>
                 </div>
               </div>
-              <div class="col-md-6 mb-3">
-                <div class="feature-card p-3">
+              <div class="col-md-4 mb-3">
+                <div class="feature-card p-3 h-100">
                   <div class="muted small mb-1">Step 3</div>
-                  <strong>Recommendations</strong>
-                  <div class="muted small mt-2">Rank by interest match + reviews + workload fit.</div>
-                </div>
-              </div>
-              <div class="col-md-6 mb-3">
-                <div class="feature-card p-3">
-                  <div class="muted small mb-1">Step 4</div>
-                  <strong>Build your plan</strong>
-                  <div class="muted small mt-2">Add to wishlist and export.</div>
+                  <strong>Get Ranked</strong>
+                  <div class="muted small mt-2">
+                    See courses ranked by fit, with AI summaries of student reviews and workload.
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           <div class="modal-footer">
-            <a class="btn btn-dark" href="{{ url_for('upload') }}">Start (Upload)</a>
-            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal fade" id="privacyModal" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Privacy & Transparency</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="feature-card p-3 mb-3">
-              <div class="muted small mb-1"><strong>Prototype status</strong></div>
-              <div class="muted small">
-                This is a mock UI for a student project. Some buttons and data are simulated.
-              </div>
-            </div>
-            <div class="feature-card p-3 mb-3">
-              <div class="muted small mb-1"><strong>What we use</strong></div>
-              <ul class="small mb-0">
-                <li>Course catalog + availability</li>
-                <li>Prerequisites + your completed courses</li>
-                <li>Public course descriptions + student review text</li>
-              </ul>
-            </div>
-            <div class="feature-card p-3">
-              <div class="muted small mb-1"><strong>Transparency</strong></div>
-              <div class="small">
-                Recommendations include “why recommended” explanations and make limitations visible.
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
+            <a class="btn btn-dark" href="{{ url_for('upload') }}">Start Now</a>
             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
           </div>
         </div>
@@ -157,7 +135,7 @@
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Features</h5>
+            <h5 class="modal-title">Key Features</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -165,33 +143,62 @@
           <div class="modal-body">
             <div class="row">
               <div class="col-md-4 mb-3">
-                <div class="feature-card p-3">
-                  <strong>Eligibility</strong>
+                <div class="feature-card p-3 h-100">
+                  <strong>Smart Filtering</strong>
                   <div class="muted small mt-2">
-                    Filters to courses you can take this semester.
+                    We automatically remove courses you've done and hide ones with unmet prerequisites.
                   </div>
                 </div>
               </div>
               <div class="col-md-4 mb-3">
-                <div class="feature-card p-3">
-                  <strong>Recommendations</strong>
+                <div class="feature-card p-3 h-100">
+                  <strong>Review Summaries</strong>
                   <div class="muted small mt-2">
-                    Ranks by interest match and course quality signals.
+                    Don't read 100 reviews. Our AI gives you the "Bottom Line" on difficulty and interest.
                   </div>
                 </div>
               </div>
               <div class="col-md-4 mb-3">
-                <div class="feature-card p-3">
-                  <strong>Explainability</strong>
+                <div class="feature-card p-3 h-100">
+                  <strong>Chat Assistant</strong>
                   <div class="muted small mt-2">
-                    “Why recommended” details + workload info.
+                    Ask questions like "Is the homework mandatory?" and get answers based on real student data.
                   </div>
                 </div>
               </div>
             </div>
           </div>
           <div class="modal-footer">
-            <a class="btn btn-dark" href="{{ url_for('upload') }}">Start (Upload)</a>
+            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="privacyModal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Privacy Policy</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="feature-card p-3 mb-3">
+              <div class="muted small mb-1"><strong>No Storage</strong></div>
+              <div class="small">
+                We do not save your grade sheet file. It is parsed in memory to extract course IDs and then immediately discarded.
+              </div>
+            </div>
+            <div class="feature-card p-3">
+              <div class="muted small mb-1"><strong>Session Only</strong></div>
+              <div class="small">
+                Your data exists only for the duration of this browser session. Once you close the tab, your extracted course history is gone.
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
           </div>
         </div>

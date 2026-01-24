@@ -2,6 +2,51 @@
 
 {% block title %}Recommendations{% endblock %}
 
+{% block head %}
+<style>
+    /* Importance Buttons Styling */
+    .importance-selector {
+      display: flex;
+      gap: 0;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #dee2e6;
+    }
+
+    .importance-btn {
+      width: 34px;
+      height: 34px;
+      border: none;
+      border-right: 1px solid #dee2e6;
+      background: white;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-size: 0.85rem;
+    }
+
+    .importance-btn:hover {
+      border-color: #007bff;
+      background: #f8f9fa;
+    }
+
+    .importance-btn:last-child {
+      border-right: none;
+    }
+
+    .importance-btn.active {
+      background: #007bff;
+      color: white;
+      transform: none;
+    }
+
+    .weight-result {
+      font-size: 0.75rem;
+      margin-left: 0;
+      display: block;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
     <div class="mb-3">
         <a href="{{ url_for('filters') }}" class="btn btn-sm btn-outline-secondary">
@@ -47,7 +92,7 @@
                     <textarea class="form-control form-control-sm" name="preferences_text" rows="2" placeholder="e.g. I want easy courses with Python...">{{ user_query }}</textarea>
                 </div>
 
-                <div class="form-row">
+                <div class="form-row mb-3">
                     <div class="col-6">
                         <div class="custom-control custom-checkbox small pt-2">
                             <input type="checkbox" class="custom-control-input" id="no_exam" name="no_exam" value="true" {% if filters.no_exam == "Yes" %}checked{% endif %}>
@@ -56,30 +101,79 @@
                     </div>
                     <div class="col-6">
                         <label class="small muted mb-0">Min Credits</label>
-                        <input type="number" class="form-control form-control-sm" name="min_credits" value="{{ filters.min_credits }}" step="0.5" min="0">
+                        <input type="number" class="form-control form-control-sm" name="min_credits" value="{{ filters.min_credits }}" step="0.5" min="0" max="10">
                     </div>
                 </div>
 
-                <div class="mt-3">
-                    <label class="small font-weight-bold mb-2">Adjust Weights (0.0 - 1.0)</label>
-                    
-                    <div class="d-flex align-items-center mb-1">
-                        <small class="col-4 p-0">Semantic Match</small>
-                        <input type="range" class="custom-range col-6" name="semantic_weight" min="0" max="1" step="0.1" value="{{ weights.semantic }}">
+                <label class="small font-weight-bold mb-2">Ranking Importance (1-5)</label>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-2">
+                            <label class="small mb-1 d-block">Match to Query</label>
+                            <div class="d-flex align-items-center">
+                                <div class="importance-selector" data-param="semantic">
+                                    {% set val = session.importance.get('semantic', 2)|int %}
+                                    {% for i in range(1, 6) %}
+                                        <button type="button" class="importance-btn {{ 'active' if (i-1) == val else '' }}" data-value="{{ i }}">{{ i }}</button>
+                                    {% endfor %}
+                                </div>
+                                <span class="weight-result ml-2 text-muted small">W: <span class="weight-value">0.00</span></span>
+                            </div>
+                            <input type="hidden" name="semantic_importance" value="{{ val }}">
+                            <input type="hidden" name="semantic_weight" value="0">
+                        </div>
+
+                        <div class="form-group mb-2">
+                            <label class="small mb-1 d-block">High Avg Grade</label>
+                            <div class="d-flex align-items-center">
+                                <div class="importance-selector" data-param="avg_grade">
+                                    {% set val = session.importance.get('avg_grade', 2)|int %}
+                                    {% for i in range(1, 6) %}
+                                        <button type="button" class="importance-btn {{ 'active' if (i-1) == val else '' }}" data-value="{{ i }}">{{ i }}</button>
+                                    {% endfor %}
+                                </div>
+                                <span class="weight-result ml-2 text-muted small">W: <span class="weight-value">0.00</span></span>
+                            </div>
+                            <input type="hidden" name="avg_grade_importance" value="{{ val }}">
+                            <input type="hidden" name="avg_grade_weight" value="0">
+                        </div>
                     </div>
 
-                    <div class="d-flex align-items-center mb-1">
-                        <small class="col-4 p-0">High Avg Grade</small>
-                        <input type="range" class="custom-range col-6" name="avg_grade_weight" min="0" max="1" step="0.1" value="{{ weights.avg_grade }}">
-                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-2">
+                            <label class="small mb-1 d-block">Low Workload</label>
+                            <div class="d-flex align-items-center">
+                                <div class="importance-selector" data-param="workload_rating">
+                                    {% set val = session.importance.get('workload_rating', 2)|int %}
+                                    {% for i in range(1, 6) %}
+                                        <button type="button" class="importance-btn {{ 'active' if (i-1) == val else '' }}" data-value="{{ i }}">{{ i }}</button>
+                                    {% endfor %}
+                                </div>
+                                <span class="weight-result ml-2 text-muted small">W: <span class="weight-value">0.00</span></span>
+                            </div>
+                            <input type="hidden" name="workload_rating_importance" value="{{ val }}">
+                            <input type="hidden" name="workload_rating_weight" value="0">
+                        </div>
 
-                    <div class="d-flex align-items-center mb-1">
-                        <small class="col-4 p-0">Low Workload</small>
-                        <input type="range" class="custom-range col-6" name="workload_rating_weight" min="0" max="1" step="0.1" value="{{ weights.workload_rating }}">
+                        <div class="form-group mb-2">
+                            <label class="small mb-1 d-block">High Rating</label>
+                            <div class="d-flex align-items-center">
+                                <div class="importance-selector" data-param="general_rating">
+                                    {% set val = session.importance.get('general_rating', 2)|int %}
+                                    {% for i in range(1, 6) %}
+                                        <button type="button" class="importance-btn {{ 'active' if (i-1) == val else '' }}" data-value="{{ i }}">{{ i }}</button>
+                                    {% endfor %}
+                                </div>
+                                <span class="weight-result ml-2 text-muted small">W: <span class="weight-value">0.00</span></span>
+                            </div>
+                            <input type="hidden" name="general_rating_importance" value="{{ val }}">
+                            <input type="hidden" name="general_rating_weight" value="0">
+                        </div>
+                        
+                        <input type="hidden" name="credits_importance" value="{{ session.importance.get('credits', 2) }}">
+                        <input type="hidden" name="credits_weight" value="0">
                     </div>
-                    
-                    <input type="hidden" name="credits_weight" value="{{ weights.credits }}">
-                    <input type="hidden" name="general_rating_weight" value="{{ weights.general_rating }}">
                 </div>
 
                 <div class="text-right mt-3">
@@ -102,25 +196,38 @@
               <div class="flex-grow-1">
                 <div class="d-flex align-items-center flex-wrap">
                   <span class="badge badge-secondary mr-2">#{{ loop.index }}</span>
-                  <h5 class="mb-0">{{ course.title }}</h5>
+                  <h5 class="mb-0 font-weight-bold">{{ course.title }}</h5>
                   <span class="muted small ml-2">({{ "%.1f"|format(course.credits) }} pts)</span>
                 </div>
-                <div class="mt-2 small">
-                  <span class="muted">Avg Grade:</span> {{ "%.0f"|format(course.avg_grade_all_sem) }}
-                  <span class="ml-2 muted">|</span>
-                  <span class="ml-2 muted">General:</span> {{ "%.1f"|format(course.general_rating) }}/5
-                  <span class="ml-2 muted">|</span>
-                  <span class="ml-2 muted">Workload:</span> {{ "%.1f"|format(course.workload_rating) }}/5
+                
+                <div class="d-flex align-items-center mt-2 mb-2 small">
+                     <span class="mr-3" title="Student Rating">
+                        <i class="fas fa-star text-warning mr-1"></i>{{ "%.1f"|format(course.general_rating) }}/5
+                     </span>
+                     <span class="mr-3" title="Average Grade">
+                        <i class="fas fa-graduation-cap text-muted mr-1"></i>Avg: {{ "%.0f"|format(course.avg_grade_all_sem) }}
+                     </span>
+                     {% if course.workload_rating >= 4 %}
+                        <span class="text-danger" title="High Workload Rating">
+                            <i class="fas fa-fire mr-1"></i>High Workload
+                        </span>
+                     {% elif course.workload_rating <= 2.5 %}
+                        <span class="text-success" title="Light Workload Rating">
+                            <i class="fas fa-feather-alt mr-1"></i>Light Workload
+                        </span>
+                     {% else %}
+                        <span class="text-muted" title="Moderate Workload Rating">
+                            <i class="fas fa-balance-scale mr-1"></i>Moderate Load
+                        </span>
+                     {% endif %}
                 </div>
               </div>
+              
               <div class="text-right ml-3">
-                <div class="muted small">Match</div>
-                <div class="fit-score">{{ "%.0f"|format(course.combined_score * 100) }}%</div>
+                <div class="text-success font-weight-bold small">
+                    {{ "%.0f"|format(course.combined_score * 100) }}% Match
+                </div>
               </div>
-            </div>
-
-            <div class="fit-bar mt-2 mb-3">
-              <div class="fit-bar-fill" style="width: {{ (course.combined_score * 100)|int }}%;"></div>
             </div>
 
             {% if course.moed_a %}
@@ -147,9 +254,9 @@
             {% endif %}
 
             <div class="mt-2">
-                <div class="small font-weight-bold mb-1">Course Highlights</div>
-                <div class="ai-description-placeholder small" dir="auto" style="white-space: pre-wrap;">
-                    {{ course.summary_bottom_line if course.summary_bottom_line else 'Summary not available yet.' }}
+                <div class="small font-weight-bold mb-1">Bottom Line</div>
+                <div class="ai-description-placeholder small text-secondary" dir="auto" style="white-space: pre-wrap; line-height: 1.4;">
+                    {{ course.summary_bottom_line.overview if course.summary_bottom_line.overview else 'Summary not available yet.' }}
                 </div>
             </div>
 
@@ -239,7 +346,7 @@
         <div class="modal-body">
           <div class="text-center py-5 muted">
             <i class="fas fa-hammer fa-2x mb-3"></i><br>
-            Course summary and syllabus details will appear here.
+            Loading...
           </div>
         </div>
       </div>
@@ -249,7 +356,60 @@
 
 {% block scripts %}
   <script>
-    // --- Pagination Logic ---
+    // --- 1. IMPORTANCE BUTTON LOGIC ---
+    const importanceSelectors = document.querySelectorAll('.importance-selector');
+    const importanceValues = {
+        semantic: {{ session.importance.get('semantic', 2)|int }} + 1,
+        avg_grade: {{ session.importance.get('avg_grade', 2)|int }} + 1,
+        workload_rating: {{ session.importance.get('workload_rating', 2)|int }} + 1,
+        general_rating: {{ session.importance.get('general_rating', 2)|int }} + 1,
+        credits: {{ session.importance.get('credits', 2)|int }} + 1
+    };
+
+    function normalizeWeights() {
+      const adjustedValues = {};
+      Object.keys(importanceValues).forEach(key => {
+        adjustedValues[key] = importanceValues[key] - 1; 
+      });
+      const total = Object.values(adjustedValues).reduce((sum, val) => sum + val, 0);
+      const weights = {};
+      Object.keys(adjustedValues).forEach(key => {
+        weights[key] = total > 0 ? adjustedValues[key] / total : 0;
+      });
+      return weights;
+    }
+
+    function updateWeightsDisplay() {
+      const weights = normalizeWeights();
+      importanceSelectors.forEach(selector => {
+        const param = selector.dataset.param;
+        const weight = weights[param];
+        const weightDisplay = selector.nextElementSibling.querySelector('.weight-value');
+        if(weightDisplay) weightDisplay.textContent = weight.toFixed(2);
+        const weightInput = selector.closest('.form-group').querySelector(`input[name="${param}_weight"]`);
+        if (weightInput) weightInput.value = weight.toFixed(2);
+      });
+    }
+
+    importanceSelectors.forEach(selector => {
+      const param = selector.dataset.param;
+      const buttons = selector.querySelectorAll('.importance-btn');
+      buttons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          buttons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const value = parseInt(btn.dataset.value);
+          importanceValues[param] = value;
+          const importanceInput = selector.closest('.form-group').querySelector(`input[name="${param}_importance"]`);
+          if (importanceInput) { importanceInput.value = value - 1; }
+          updateWeightsDisplay();
+        });
+      });
+    });
+    updateWeightsDisplay();
+
+    // --- 2. PAGINATION ---
     const INITIAL_DISPLAY = 10;
     const INCREMENT = 10;
     let currentlyShowing = INITIAL_DISPLAY;
@@ -270,62 +430,64 @@
       currentlyShowing += INCREMENT;
       updateDisplay();
     });
-    
     updateDisplay();
 
-    // --- Details Modal Logic ---
+    // --- 3. MODAL LOGIC (STRUCTURED OVERVIEW + QUOTES) ---
+    function generateSectionHtml(title, iconClass, data, colorClass) {
+        if (!data || (!data.overview && (!data.quotes || data.quotes.length === 0))) return '';
+
+        let html = `<div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="${colorClass} font-weight-bold mb-0"><i class="${iconClass} mr-2"></i>${title}</h6>
+            </div>
+            <div class="text-right" dir="rtl">`;
+
+        if (data.overview) {
+            html += `<div class="small text-dark mb-2 font-weight-bold">${data.overview}</div>`;
+        }
+
+        if (data.quotes && data.quotes.length > 0) {
+            html += `<div class="bg-light p-2 rounded border border-light">
+                <div class="text-muted" style="font-size: 0.75rem;">מהסטודנטים:</div>
+                <ul class="list-unstyled mb-0 pr-0 mt-1">`;
+            data.quotes.forEach(quote => {
+                html += `<li class="small text-muted mb-1 position-relative pr-3">
+                    <i class="fas fa-quote-right position-absolute text-black-50" style="right: 0; top: 3px; font-size: 0.7rem;"></i>
+                    ${quote}
+                </li>`;
+            });
+            html += `</ul></div>`;
+        }
+
+        html += `</div></div>`;
+        return html;
+    }
+
     $('#courseDetailsModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
         var title = button.data('title');
         var id = button.data('id');
-        
         var summaryData = button.data('summary'); 
         
         var modal = $(this);
         modal.find('.modal-title').text(title + ' (' + id + ')');
-        
         var modalBody = modal.find('.modal-body');
 
         if (summaryData && (summaryData.interest || summaryData.workload || summaryData.bottom)) {
             var htmlContent = '<div class="container-fluid text-right" dir="rtl">'; 
-
-            if(summaryData.interest) {
-                htmlContent += `
-                <div class="mb-3">
-                    <h6 class="font-weight-bold text-primary"><i class="fas fa-lightbulb ml-2"></i>סיכום אובייקטיבי</h6>
-                    <div class="small bg-light p-2 rounded" style="white-space: pre-line;">${summaryData.interest}</div>
-                </div>`;
-            }
-
-            if(summaryData.workload) {
-                htmlContent += `
-                <div class="mb-3">
-                    <h6 class="font-weight-bold text-primary"><i class="fas fa-pencil-ruler ml-2"></i>מטלות ומבחן</h6>
-                    <div class="small bg-light p-2 rounded" style="white-space: pre-line;">${summaryData.workload}</div>
-                </div>`;
-            }
-
-            if(summaryData.bottom) {
-                htmlContent += `
-                <div class="mb-3">
-                    <h6 class="font-weight-bold text-success"><i class="fas fa-check-circle ml-2"></i>שורה תחתונה</h6>
-                    <div class="small bg-success text-white p-2 rounded" style="white-space: pre-line;">${summaryData.bottom}</div>
-                </div>`;
-            }
+            
+            htmlContent += generateSectionHtml('Content & Interest', 'fas fa-lightbulb', summaryData.interest, 'text-primary');
+            htmlContent += generateSectionHtml('Workload & Exams', 'fas fa-pencil-ruler', summaryData.workload, 'text-primary');
+            htmlContent += generateSectionHtml('Bottom Line', 'fas fa-check-circle', summaryData.bottom, 'text-success');
 
             htmlContent += '</div>';
             modalBody.html(htmlContent);
         } else {
-            modalBody.html(`
-            <div class="text-center py-5 muted">
-                <i class="fas fa-exclamation-circle fa-2x mb-3"></i><br>
-                Detailed AI summary is not available for this course.
-            </div>
-            `);
+            modalBody.html('<div class="text-center py-5 muted"><i class="fas fa-exclamation-circle fa-2x mb-3"></i><br>Detailed AI summary is not available for this course.</div>');
         }
     });
 
-    // --- Chat Logic ---
+    // --- 4. CHAT LOGIC ---
     const chatInput = document.getElementById('chatInput');
     const sendBtn = document.getElementById('sendMessageBtn');
     const chatHistory = document.getElementById('chatHistory');
@@ -336,15 +498,12 @@
       msgDiv.className = `chat-message ${sender}`;
       msgDiv.innerText = text;
       chatHistory.appendChild(msgDiv);
-
       if (sources && sources.length > 0) {
         const sourcesDiv = document.createElement('div');
         sourcesDiv.className = 'chat-sources small muted mt-2';
-        sourcesDiv.innerHTML = '<strong>מקורות:</strong><br>' +
-          sources.map(s => `• ${s.course_title} (${s.course_id}) - ${s.relevance_score}%`).join('<br>');
+        sourcesDiv.innerHTML = '<strong>מקורות:</strong><br>' + sources.map(s => `• ${s.course_title} (${s.course_id}) - ${s.relevance_score}%`).join('<br>');
         chatHistory.appendChild(sourcesDiv);
       }
-
       chatHistory.scrollTop = chatHistory.scrollHeight;
     }
 
@@ -365,38 +524,27 @@
     async function handleSend() {
       const text = chatInput.value.trim();
       if(!text) return;
-
       chatInput.disabled = true;
       sendBtn.disabled = true;
-
       appendMessage(text, 'user');
       conversationHistory.push({ role: 'user', content: text });
       chatInput.value = '';
-
       showTypingIndicator();
 
       try {
         const response = await fetch('/api/chat', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            message: text,
-            history: conversationHistory.slice(-6)
-          })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, history: conversationHistory.slice(-6) })
         });
-
         const data = await response.json();
         removeTypingIndicator();
-
         if (data.success) {
           appendMessage(data.response, 'bot', data.sources);
           conversationHistory.push({ role: 'assistant', content: data.response });
         } else {
           appendMessage('מצטער, אירעה שגיאה. אנא נסה שוב.', 'bot');
         }
-
       } catch (error) {
         console.error('Error:', error);
         removeTypingIndicator();
@@ -410,10 +558,7 @@
 
     if (sendBtn) sendBtn.addEventListener('click', handleSend);
     if (chatInput) chatInput.addEventListener('keypress', (e) => {
-      if(e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        handleSend();
-      }
+      if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
     });
   </script>
 {% endblock %}
