@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, session, jsonify
 import re
-from src.utilities import parse_grades_pdf, COURSE_TITLES
+from src.utilities import parse_grades_pdf, parse_review_summary
 from src.knowledgebase import recommend_courses
 from src.agent import chat_with_assistant  # ADD THIS IMPORT
 
@@ -25,75 +25,67 @@ def course_overview():
 def upload():
     if request.method == "POST":
         file = request.files.get("grades_file")
-
+        
         if not file or file.filename == '':
-            session['completed_courses'] = []
+            session['completed_courses'] = [] 
             flash("Skipped upload. You can manually add courses now.")
             return redirect(url_for('review_courses'))
 
         try:
-            completed_course_ids = parse_grades_pdf(file)  # parsing grade sheet
-            if not completed_course_ids:
-                flash("No courses found in the uploaded file. Try again or skip.")
+            # Returns: [{'id': '00940210', 'name': 'Computer Org'}, ...]
+            parsed_courses = parse_grades_pdf(file)
+            
+            if not parsed_courses:
+                flash("No courses found. Try a different file.")
                 return redirect(url_for('upload'))
 
-            session['completed_courses'] = completed_course_ids
+            session['completed_courses'] = parsed_courses
             return redirect(url_for('review_courses'))
 
-        except Exception as e:  # any other error
-            flash(f"Error parsing grade sheet: {str(e)}")
+        except Exception as e:
+            print(f"Upload Error: {e}")
+            flash(f"Error parsing file: {str(e)}")
             return redirect(url_for('upload'))
-
     return render_template("upload.html")
 
 
 # STEP 2: Review and confirm courses
 @app.route("/review_courses", methods=["GET", "POST"])
 def review_courses():
-    # safe fallback (in case someone navigates here directly)
-    if 'completed_courses' not in session:
+    if 'completed_courses' not in session: 
         session['completed_courses'] = []
+    
+    current_courses = session.get('completed_courses', [])
 
     if request.method == "POST":
-        if "new_course_id" in request.form:  # user adds courses manually
-            new_course = request.form.get("new_course_id")  # TODO: check
-            # TODO: add normalize?
-            if new_course:
-                current_courses = session.get('completed_courses', [])
-                if new_course not in current_courses:
-                    current_courses.append(new_course)
-                    session['completed_courses'] = current_courses
-                    flash(f"Added {new_course}.")
-                else:
-                    flash(f"{new_course} is already in the list.")
-            return redirect(url_for('review_courses'))
+        # --- CASE 1: MANUAL ADD ---
+        if "new_course_id" in request.form: 
+            new_id = request.form.get("new_course_id").strip()
+            # Get the name (default to the ID if left empty)
+            new_name = request.form.get("new_course_name", "").strip() or new_id
+            
+            existing_ids = {c['id'] for c in current_courses}
 
-        # list all parsed (or updated) courses
-        confirmed_courses = request.form.getlist("confirmed_courses")
-        session['completed_courses'] = confirmed_courses
-        # if not confirmed_courses:
-        #     flash("Please select at least one course to continue.")
-        #     return redirect(url_for('review_courses'))
+            if new_id and new_id not in existing_ids:
+                # Save both ID and Name
+                current_courses.append({'id': new_id, 'name': new_name})
+                session['completed_courses'] = current_courses
+                flash(f"Added course {new_id}: {new_name}")
+            elif new_id in existing_ids: 
+                flash(f"Course {new_id} is already in the list.")
+            
+            return redirect(url_for('review_courses'))
+            
+        # --- CASE 2: CONFIRM SELECTION ---
+        confirmed_ids = request.form.getlist("confirmed_courses")
+        filtered_courses = [c for c in current_courses if c['id'] in confirmed_ids]
+        session['completed_courses'] = filtered_courses
+        
         return redirect(url_for('filters'))
 
-    # GET request - show review page
-    completed_courses = session.get('completed_courses', [])
-    courses_display_data = []
-    for c_id in completed_courses:
-        # Fallback to the ID if title is not found in KB.csv
-        c_id = int(c_id)
-        # print(f"cids are {c_id}")
-        title = COURSE_TITLES.get(str(c_id), c_id)
-        courses_display_data.append({
-            'id': c_id,
-            'title': title
-        })
-    # print(f"courses_display_data {courses_display_data}")
-    return render_template("review_courses.html", completed_courses=completed_courses,
-                           courses_list=courses_display_data)
+    return render_template("review_courses.html", completed_courses=current_courses)
 
 
-# STEP 3: Set filters and weights
 # STEP 3: Set filters and weights
 @app.route("/filters", methods=["GET", "POST"])
 def filters():
@@ -170,26 +162,29 @@ def filters():
 # STEP 4: Get recommendations
 @app.get("/recommendations")
 def recommendations():
-    # Retrieve from session
-    completed_courses = session.get('completed_courses', [])
-    filters = session.get('filters', {})
-    weights = session.get('weights', {})
-
-    if not completed_courses:
-        flash("No courses found. Please upload your grade sheet first.")
+    # 1. Get the list of dicts
+    completed_courses_data = session.get('completed_courses', [])
+    if not completed_courses_data:
+        flash("No courses found.")
         return redirect(url_for('upload'))
 
-    # Extract parameters
+    # 2. Extract ONLY IDs for the algorithm
+    completed_ids_only = [str(c['id']) for c in completed_courses_data]
+
+    # 3. Retrieve session data
+    filters = session.get('filters', {})
+    weights = session.get('weights', {})
+    
+    # Extract specific values for the algorithm and display
     semester = filters.get('semester', 'WINTER_2025_2026')
     no_exam = filters.get('no_exam', False)
     min_credits = filters.get('min_credits', 0)
     user_query = filters.get('user_query', '')
 
-    # Call recommendation engine
     try:
         ranked_df = recommend_courses(
             semester_name=semester,
-            courses_list=completed_courses,
+            courses_list=completed_ids_only,
             no_exam=no_exam,
             min_credits=min_credits,
             user_query=user_query,
@@ -199,29 +194,36 @@ def recommendations():
             workload_rating_weight=weights.get('workload_rating', 0.2),
             general_rating_weight=weights.get('general_rating', 0.2)
         )
-
-        # Convert DataFrame to list of dicts for template
+        # Convert to dicts
         courses = ranked_df.to_dict('records')
 
+        # 2. Loop through and add the parsed fields to each course dictionary
+        for course in courses:
+            summary_parts = parse_review_summary(course.get('reviews_summary', ''))
+            course['summary_interest'] = summary_parts['interest']
+            course['summary_workload'] = summary_parts['workload']
+            course['summary_bottom_line'] = summary_parts['bottom_line']
     except Exception as e:
-        flash(f"Error generating recommendations: {str(e)}")
+        print(f"Rec Error: {e}")
+        flash(f"Error: {str(e)}")
         courses = []
 
-    # Prepare display data
+    # Prepare display data so the HTML doesn't crash
     applied_filters = {
         "semester": semester,
         "no_exam": "Yes" if no_exam else "No",
         "min_credits": min_credits,
-        "completed_count": len(completed_courses)
+        "completed_count": len(completed_courses_data)
     }
 
     return render_template(
-        "recommendations.html",
+        "recommendations.html", 
         courses=courses,
-        filters=applied_filters,
-        weights=weights,
-        user_query=user_query
+        filters=applied_filters, 
+        weights=weights,         
+        user_query=user_query    
     )
+
 
 
 # ============================================================================

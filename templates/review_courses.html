@@ -9,12 +9,26 @@
 </head>
 
 <body>
-  <nav id="top-navbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+  <nav id="top-navbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
         <span>CheeseSpoon</span>
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="CheeseSpoon" class="brand-logo" />
+        <img
+          src="{{ url_for('static', filename='logo.png') }}"
+          alt="CheeseSpoon"
+          class="brand-logo"
+        />
       </a>
+      <div id="top-navbar-supported-content" class="collapse navbar-collapse">
+        <ul class="navbar-nav ml-auto align-items-lg-center">
+          <li class="nav-item">
+            <a class="btn btn-sm btn-outline-secondary mr-lg-2" href="{{ url_for('index') }}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-sm btn-outline-secondary mr-lg-2" href="{{ url_for('course_overview') }}">Course Overview</a>
+          </li>
+        </ul>
+      </div>
     </div>
   </nav>
 
@@ -37,23 +51,37 @@
           </div>
 
           <div class="card mb-4 border-primary">
-            <div class="card-body py-3 bg-light">
-              <form method="POST" class="d-flex align-items-center flex-wrap">
-                <label class="mr-2 mb-0 font-weight-bold text-primary">Add Manual Course:</label>
-                <input type="text" name="new_course_id" class="form-control mr-2" 
-                       placeholder="e.g. 234111" style="max-width: 150px;" required>
-                <button type="submit" class="btn btn-primary btn-sm">Add</button>
-                <small class="text-muted ml-3 d-none d-sm-block">
-                  Enter the course ID to add it to your list below.
-                </small>
+            <div class="card-body bg-light">
+              <h6 class="text-primary font-weight-bold mb-3">Add Manual Course</h6>
+              <form method="POST" class="form-row align-items-center">
+                
+                <div class="col-md-3 col-sm-12 mb-2 mb-md-0">
+                  <label class="sr-only" for="new_course_id">Course ID</label>
+                  <input type="text" name="new_course_id" id="new_course_id" 
+                         class="form-control" placeholder="ID (e.g. 234111)" required>
+                </div>
+
+                <div class="col-md-7 col-sm-12 mb-2 mb-md-0">
+                  <label class="sr-only" for="new_course_name">Course Name</label>
+                  <input type="text" name="new_course_name" id="new_course_name" 
+                         class="form-control" placeholder="Course Name (e.g. Intro to CS)">
+                </div>
+
+                <div class="col-md-2 col-sm-12">
+                  <button type="submit" class="btn btn-primary btn-block">Add</button>
+                </div>
+
               </form>
+              <small class="text-muted mt-2 d-block">
+                If the extraction missed a course, add its ID and Name here.
+              </small>
             </div>
           </div>
 
           <form method="POST">
             <div class="card mb-4">
               <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                <strong>Your Course List ({{ courses_list|length }})</strong>
+                <strong>Your Course List ({{ completed_courses|length }})</strong>
                 
                 {% if completed_courses %}
                 <div>
@@ -63,37 +91,33 @@
                 {% endif %}
               </div>
 
-              <div class="card-body">
-  {% if courses_list %}
-    <div class="row">
-      {% for course in courses_list %}
-      <div class="col-12 mb-2"> <div class="custom-control custom-checkbox border-bottom pb-2">
-          
-          <input class="custom-control-input course-checkbox" type="checkbox"
-                 name="confirmed_courses" value="{{ course.id }}"
-                 id="course_{{ course.id }}" checked>
-          
-          <label class="custom-control-label w-100" for="course_{{ course.id }}">
-            <span class="font-weight-bold text-dark">{{ course.title }}</span>
-            {% if course.id == course.title %}
-              <span class="badge badge-warning ml-2">Unknown Title</span>
-            {% endif %}
-          </label>
-          
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-    <div class="alert alert-light mt-3 mb-0 small">
-      <strong>Tip:</strong> Uncheck any courses that were incorrectly extracted.
-    </div>
-  {% else %}
-    <div class="text-center py-4 muted">
-      <p class="mb-0">No courses in your list yet.</p>
-      <small>Upload a grade sheet or add courses manually above.</small>
-    </div>
-  {% endif %}
-</div>
+              <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                {% if completed_courses %}
+                  <div class="list-group">
+                    {% for course in completed_courses %}
+                    <div class="list-group-item">
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input course-checkbox" 
+                               name="confirmed_courses" 
+                               value="{{ course.id }}" 
+                               id="c_{{ course.id }}" checked>
+                        
+                        <label class="custom-control-label d-flex justify-content-between align-items-center w-100" for="c_{{ course.id }}">
+                          <span class="font-weight-bold text-dark">{{ course.name }}</span>
+                          <span class="badge badge-light border">{{ course.id }}</span>
+                        </label>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  <div class="text-center py-5 muted">
+                    <h5 class="mb-2">No courses found</h5>
+                    <p class="mb-0 small">Upload a grade sheet or add courses manually above.</p>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
 
             <div class="d-flex justify-content-between align-items-center">
               <a class="btn btn-outline-secondary" href="{{ url_for('upload') }}">← Back to Upload</a>

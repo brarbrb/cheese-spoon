@@ -202,20 +202,21 @@
             {% endif %}
 
             <div class="mt-2">
-                <div class="small font-weight-bold mb-1">Course Highlights</div>
-                <div class="ai-description-placeholder small">
-                    Brief course description / main topics will appear here...
-                </div>
-            </div>
+    <div class="small font-weight-bold mb-1">Course Highlights</div>
+    <div class="ai-description-placeholder small" dir="auto" style="white-space: pre-wrap;">
+        {{ course.summary_bottom_line if course.summary_bottom_line else 'Summary not available yet.' }}
+    </div>
+</div>
 
             <div class="d-flex justify-content-between mt-3 align-items-center">
               <button class="btn btn-sm btn-link pl-0 text-secondary" 
-                      data-toggle="modal" 
-                      data-target="#courseDetailsModal"
-                      data-title="{{ course.title }}"
-                      data-id="{{ course.ID }}">
-                 <i class="fas fa-expand mr-1"></i> Full Details
-              </button>
+        data-toggle="modal" 
+        data-target="#courseDetailsModal"
+        data-title="{{ course.title }}"
+        data-id="{{ course.ID }}"
+        data-summary='{{ {"interest": course.summary_interest, "workload": course.summary_workload, "bottom": course.summary_bottom_line} | tojson | safe }}'>
+    <i class="fas fa-expand mr-1"></i> Full Details
+</button>
               
               <button
                 class="btn btn-sm btn-dark add-to-wishlist-btn"
@@ -325,6 +326,55 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
+    // --- 1. Initialize the Wishlist State ---
+    // This was missing from your code
+    const wishlist = new Map();
+    const clearWishlistBtn = document.getElementById('clearWishlistBtn'); // Required for the event listener later
+
+    // --- 2. Define the UI Update Function ---
+    // This updates the modal list and the cart badges
+    function updateWishlistUI() {
+        const listContainer = document.getElementById('wishlistItems');
+        const emptyMsg = document.getElementById('wishlistEmpty');
+        const countBadges = document.querySelectorAll('#wishlistCount, #mobileWishlistCount');
+        const totalCreditsSpan = document.getElementById('modalTotalCredits');
+
+        // Update all badge counters
+        countBadges.forEach(b => b.innerText = wishlist.size);
+
+        // Clear current list
+        listContainer.innerHTML = '';
+        let totalCredits = 0;
+
+        if (wishlist.size === 0) {
+            emptyMsg.style.display = 'block';
+            clearWishlistBtn.disabled = true;
+        } else {
+            emptyMsg.style.display = 'none';
+            clearWishlistBtn.disabled = false;
+
+            wishlist.forEach((item) => {
+                totalCredits += item.points;
+                
+                // Create list item
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+                itemDiv.innerHTML = `
+                    <div>
+                        <h6 class="mb-0">${item.name}</h6>
+                        <small class="text-muted">Course ID: ${item.id} | ${item.points} pts</small>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger" onclick="removeFromWishlist('${item.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                listContainer.appendChild(itemDiv);
+            });
+        }
+        
+        // Update total credits
+        if(totalCreditsSpan) totalCreditsSpan.innerText = totalCredits.toFixed(1);
+    }
     // --- Pagination Logic ---
     const INITIAL_DISPLAY = 10;
     const INCREMENT = 10;
@@ -350,62 +400,63 @@
     updateDisplay();
 
     // --- Details Modal Logic ---
-    $('#courseDetailsModal').on('show.bs.modal', function (event) {
-      var button = $(event.relatedTarget);
-      var title = button.data('title');
-      var id = button.data('id');
-      var modal = $(this);
-      modal.find('.modal-title').text(title + ' (' + id + ')');
-      // Later you can fetch content via AJAX here using the ID
-    });
+    // --- Details Modal Logic ---
+$('#courseDetailsModal').on('show.bs.modal', function (event) {
+  var button = $(event.relatedTarget);
+  var title = button.data('title');
+  var id = button.data('id');
+  
+  // Extract the JSON object we attached to the button
+  var summaryData = button.data('summary'); 
+  
+  var modal = $(this);
+  modal.find('.modal-title').text(title + ' (' + id + ')');
+  
+  var modalBody = modal.find('.modal-body');
 
-    // --- Wishlist Logic ---
-    const wishlist = new Map();
-    const wishlistCountBadge = document.getElementById("wishlistCount");
-    const mobileWishlistCount = document.getElementById("mobileWishlistCount");
-    const wishlistItemsContainer = document.getElementById("wishlistItems");
-    const wishlistEmptyMsg = document.getElementById("wishlistEmpty");
-    const modalTotalCredits = document.getElementById("modalTotalCredits");
-    const clearWishlistBtn = document.getElementById("clearWishlistBtn");
+  // Check if we have valid summary data
+  if (summaryData && (summaryData.interest || summaryData.workload || summaryData.bottom)) {
+      var htmlContent = '<div class="container-fluid">';
 
-    function updateWishlistUI() {
-      const count = wishlist.size;
-      wishlistCountBadge.innerText = count;
-      mobileWishlistCount.innerText = count;
-
-      wishlistItemsContainer.innerHTML = "";
-      let totalPts = 0;
-      
-      if (count === 0) {
-        wishlistEmptyMsg.style.display = 'block';
-        clearWishlistBtn.disabled = true;
-      } else {
-        wishlistEmptyMsg.style.display = 'none';
-        clearWishlistBtn.disabled = false;
-        
-        wishlist.forEach((item, id) => {
-          totalPts += item.points;
-          const el = document.createElement('div');
-          el.className = "list-group-item d-flex justify-content-between align-items-center";
-          el.innerHTML = `
-            <div>
-              <span class="kbd-pill mr-1">${item.id}</span> <strong>${item.name}</strong>
-              <div class="small muted">${item.points} pts</div>
-            </div>
-            <button class="btn btn-sm text-danger remove-item-btn" data-id="${id}">&times;</button>
-          `;
-          wishlistItemsContainer.appendChild(el);
-        });
-
-        document.querySelectorAll('.remove-item-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const id = e.target.closest('button').dataset.id;
-            removeFromWishlist(id);
-          });
-        });
+      // Section: Interest
+      if(summaryData.interest) {
+          htmlContent += `
+            <div class="mb-3">
+                <h6 class="font-weight-bold text-primary"><i class="fas fa-lightbulb mr-2"></i>Content & Interest</h6>
+                <div class="small bg-light p-2 rounded" dir="auto" style="white-space: pre-line;">${summaryData.interest}</div>
+            </div>`;
       }
-      modalTotalCredits.innerText = totalPts.toFixed(1);
-    }
+
+      // Section: Workload
+      if(summaryData.workload) {
+          htmlContent += `
+            <div class="mb-3">
+                <h6 class="font-weight-bold text-primary"><i class="fas fa-pencil-ruler mr-2"></i>Assignments & Exam</h6>
+                <div class="small bg-light p-2 rounded" dir="auto" style="white-space: pre-line;">${summaryData.workload}</div>
+            </div>`;
+      }
+
+      // Section: Bottom Line
+      if(summaryData.bottom) {
+          htmlContent += `
+            <div class="mb-3">
+                <h6 class="font-weight-bold text-success"><i class="fas fa-check-circle mr-2"></i>Bottom Line</h6>
+                <div class="small bg-success text-white p-2 rounded" dir="auto" style="white-space: pre-line;">${summaryData.bottom}</div>
+            </div>`;
+      }
+
+      htmlContent += '</div>';
+      modalBody.html(htmlContent);
+  } else {
+      // Fallback if no summary exists
+      modalBody.html(`
+        <div class="text-center py-5 muted">
+            <i class="fas fa-exclamation-circle fa-2x mb-3"></i><br>
+            Detailed AI summary is not available for this course.
+        </div>
+      `);
+  }
+});
 
     function toggleButtonState(id, isAdded) {
        document.querySelectorAll(`.add-to-wishlist-btn[data-course-id="${id}"]`).forEach(btn => {
@@ -550,33 +601,63 @@
       }
     });
 
-    // Load course summaries on page load
-    document.addEventListener('DOMContentLoaded', async () => {
-      const coursePlaceholders = document.querySelectorAll('.ai-description-placeholder');
+// --- Details Modal Logic ---
+$('#courseDetailsModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var title = button.data('title');
+    var id = button.data('id');
+    
+    // Extract the JSON object we attached to the button
+    var summaryData = button.data('summary'); 
+    
+    var modal = $(this);
+    modal.find('.modal-title').text(title + ' (' + id + ')');
+    
+    var modalBody = modal.find('.modal-body');
 
-      coursePlaceholders.forEach(async (placeholder, index) => {
-        const card = placeholder.closest('.course-card');
-        const courseTitle = card.querySelector('h5').innerText;
+    // Check if we have valid summary data
+    if (summaryData && (summaryData.interest || summaryData.workload || summaryData.bottom)) {
+        var htmlContent = '<div class="container-fluid text-right" dir="rtl">'; // RTL for Hebrew
 
-        // Extract course ID from title (assuming format like "123456 - Course Name")
-        const idMatch = courseTitle.match(/(\d{6,8})/);
-        if (!idMatch) return;
-
-        const courseId = idMatch[1];
-
-        try {
-          const response = await fetch(`/api/course-summary/${courseId}`);
-          const data = await response.json();
-
-          if (data.success) {
-            placeholder.innerText = data.summary;
-            placeholder.classList.remove('text-muted');
-          }
-        } catch (error) {
-          console.error(`Error loading summary for ${courseId}:`, error);
+        // Section: Interest
+        if(summaryData.interest) {
+            htmlContent += `
+            <div class="mb-3">
+                <h6 class="font-weight-bold text-primary"><i class="fas fa-lightbulb ml-2"></i>סיכום אובייקטיבי</h6>
+                <div class="small bg-light p-2 rounded" style="white-space: pre-line;">${summaryData.interest}</div>
+            </div>`;
         }
-      });
-    });
+
+        // Section: Workload
+        if(summaryData.workload) {
+            htmlContent += `
+            <div class="mb-3">
+                <h6 class="font-weight-bold text-primary"><i class="fas fa-pencil-ruler ml-2"></i>מטלות ומבחן</h6>
+                <div class="small bg-light p-2 rounded" style="white-space: pre-line;">${summaryData.workload}</div>
+            </div>`;
+        }
+
+        // Section: Bottom Line
+        if(summaryData.bottom) {
+            htmlContent += `
+            <div class="mb-3">
+                <h6 class="font-weight-bold text-success"><i class="fas fa-check-circle ml-2"></i>שורה תחתונה</h6>
+                <div class="small bg-success text-white p-2 rounded" style="white-space: pre-line;">${summaryData.bottom}</div>
+            </div>`;
+        }
+
+        htmlContent += '</div>';
+        modalBody.html(htmlContent);
+    } else {
+        // Fallback if no summary exists
+        modalBody.html(`
+        <div class="text-center py-5 muted">
+            <i class="fas fa-exclamation-circle fa-2x mb-3"></i><br>
+            Detailed AI summary is not available for this course.
+        </div>
+        `);
+    }
+});
   </script>
 </body>
 </html>
