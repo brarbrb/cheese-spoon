@@ -360,6 +360,82 @@ def chat():
 def normalize_course_id(s: str) -> str:
     return re.sub(r"\D", "", s)[:6]
 
+# ============================================================================
+# WISHLIST LOGIC
+# ============================================================================
+
+# 1. Update Context Processor
+@app.context_processor
+def inject_wishlist():
+    wishlist = session.get('wishlist', [])
+    if not isinstance(wishlist, list): wishlist = []
+    
+    total_points = sum(float(item.get('points', 0) or 0) for item in wishlist)
+    
+    # Create a set of IDs for easy checking in templates
+    wishlist_ids = {item['id'] for item in wishlist}
+    
+    return dict(
+        wishlist=wishlist, 
+        wishlist_count=len(wishlist),
+        wishlist_total=round(total_points, 1),
+        wishlist_ids=wishlist_ids 
+    )
+
+# 2. Add to Wishlist (Fixed is_xhr)
+@app.route("/wishlist/add", methods=["POST"])
+def add_to_wishlist():
+    current_list = session.get('wishlist', [])
+    if not isinstance(current_list, list): current_list = []
+    
+    course_id = request.form.get("course_id")
+    course_name = request.form.get("course_name")
+    try: points = float(request.form.get("course_points", 0))
+    except: points = 0.0
+
+    added = False
+    if not any(c['id'] == course_id for c in current_list):
+        current_list.append({'id': course_id, 'name': course_name, 'points': points})
+        session['wishlist'] = current_list
+        added = True
+    
+    # CHECK FOR AJAX/JSON REQUEST (FIXED)
+    is_ajax = (request.headers.get('X-Requested-With') == 'XMLHttpRequest') or \
+              (request.accept_mimetypes.best == 'application/json')
+
+    if is_ajax:
+         total = sum(float(i.get('points', 0)) for i in current_list)
+         return jsonify({'status': 'success', 'count': len(current_list), 'total': total})
+
+    if added: flash(f"Added {course_name}", "success")
+    return redirect(request.referrer or url_for('index'))
+
+# 3. Remove from Wishlist (Fixed is_xhr)
+@app.route("/wishlist/remove", methods=["POST"])
+def remove_from_wishlist():
+    course_id = request.form.get("course_id")
+    current_list = session.get('wishlist', [])
+    if not isinstance(current_list, list): current_list = []
+    
+    session['wishlist'] = [c for c in current_list if c['id'] != course_id]
+    
+    # CHECK FOR AJAX/JSON REQUEST (FIXED)
+    is_ajax = (request.headers.get('X-Requested-With') == 'XMLHttpRequest') or \
+              (request.accept_mimetypes.best == 'application/json')
+    
+    if is_ajax:
+         new_list = session['wishlist']
+         total = sum(float(i.get('points', 0)) for i in new_list)
+         return jsonify({'status': 'success', 'count': len(new_list), 'total': total})
+
+    return redirect(request.referrer or url_for('index'))
+
+# 4. Clear Wishlist
+@app.route("/wishlist/clear", methods=["POST"])
+def clear_wishlist():
+    session['wishlist'] = []
+    flash("Wishlist cleared.", "success")
+    return redirect(request.referrer or url_for('index'))
 
 if __name__ == "__main__":
     app.run(debug=True)

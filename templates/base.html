@@ -1,46 +1,167 @@
-<button class="btn btn-sm btn-dark" data-toggle="modal" data-target="#wishlistModal">
-    <i class="fas fa-shopping-cart mr-1"></i> Wishlist
-    <span class="badge badge-light ml-1">{{ wishlist|length }}</span>
-</button>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CheeseSpoon — {% block title %}Course Recommender{% endblock %}</title>
 
-<div class="modal fade" id="wishlistModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Your Wishlist</h5>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                {% if wishlist|length == 0 %}
-                    <div class="text-center muted py-4">Your wishlist is empty.</div>
-                {% else %}
-                    <div class="list-group">
-                        {% for id, item in wishlist.items() %}
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6>{{ item.title }}</h6>
-                                <small class="text-muted">{{ item.points }} pts</small>
-                            </div>
-                            <form action="{{ url_for('remove_from_wishlist') }}" method="POST">
-                                <input type="hidden" name="course_id" value="{{ id }}">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <div class="mt-3 text-right">
-                        <strong>Total: {{ wishlist_total }} pts</strong>
-                    </div>
-                {% endif %}
-            </div>
-            <div class="modal-footer">
-                <form action="{{ url_for('clear_wishlist') }}" method="POST">
-                    <button type="submit" class="btn btn-outline-secondary">Clear</button>
-                </form>
-                <button type="button" class="btn btn-dark">Export</button>
-            </div>
-        </div>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+  <nav id="top-navbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
+        <span>CheeseSpoon</span>
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="brand-logo" />
+      </a>
+
+      <button class="btn btn-outline-dark d-lg-none ml-auto mr-2" data-toggle="modal" data-target="#wishlistModal">
+        <i class="fas fa-shopping-cart"></i> 
+        <span class="wishlist-badge badge badge-light">{{ wishlist_count }}</span>
+      </button>
+
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navContent">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div id="navContent" class="collapse navbar-collapse">
+        <ul class="navbar-nav ml-auto align-items-lg-center">
+          <li class="nav-item"><a class="btn btn-sm btn-outline-secondary mr-2" href="{{ url_for('index') }}">Home</a></li>
+          <li class="nav-item"><a class="btn btn-sm btn-outline-secondary mr-2" href="{{ url_for('course_overview') }}">Course Overview</a></li>
+          <li class="nav-item d-none d-lg-block">
+            <button class="btn btn-sm btn-dark" data-toggle="modal" data-target="#wishlistModal">
+              <i class="fas fa-shopping-cart mr-1"></i> Wishlist
+              <span class="wishlist-badge badge badge-light ml-1">{{ wishlist_count }}</span>
+            </button>
+          </li>
+        </ul>
+      </div>
     </div>
-</div>
+  </nav>
+
+  <main class="container my-4">
+    <div id="flash-messages">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else 'secondary' }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <div class="modal fade" id="wishlistModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Your Wishlist</h5>
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        </div>
+        <div class="modal-body" id="wishlist-modal-body">
+          {% if wishlist_count == 0 %}
+              <div class="text-center muted py-4">Your wishlist is empty.</div>
+          {% else %}
+              <div class="list-group">
+              {% for item in wishlist %}
+                  <div class="list-group-item d-flex justify-content-between align-items-center" id="wishlist-item-{{ item.id }}">
+                      <div>
+                          <h6 class="mb-0">{{ item.name }}</h6>
+                          <small class="text-muted">{{ item.id }} | {{ item.points }} pts</small>
+                      </div>
+                      <button class="btn btn-sm btn-outline-danger remove-wishlist-btn" data-id="{{ item.id }}">
+                          <i class="fas fa-trash"></i>
+                      </button>
+                  </div>
+              {% endfor %}
+              </div>
+              <div class="mt-3 text-right">
+                  <strong class="mr-2">Total:</strong> <span id="wishlist-total">{{ wishlist_total }}</span> pts
+              </div>
+          {% endif %}
+        </div>
+        <div class="modal-footer">
+          <form action="{{ url_for('clear_wishlist') }}" method="POST">
+             <button type="button" class="btn btn-outline-secondary" onclick="return confirm('Clear all?');">Clear</button>
+          </form>
+          <button type="button" class="btn btn-dark">Export PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    // 1. ADD TO WISHLIST (AJAX)
+    $(document).on('submit', '.ajax-add-wishlist', function(e) {
+        e.preventDefault();
+        const form = $(this);
+        const btn = form.find('button[type="submit"]');
+        const originalText = btn.html();
+
+        $.ajax({
+            url: "{{ url_for('add_to_wishlist') }}",
+            type: "POST",
+            data: form.serialize(),
+            success: function(response) {
+                if(response.status === 'success') {
+                    // Update Badge
+                    $('.wishlist-badge').text(response.count);
+                    
+                    // Update Button Visuals (Green & Checked)
+                    btn.removeClass('btn-dark btn-outline-secondary').addClass('btn-success');
+                    btn.html('<i class="fas fa-check mr-1"></i> Added');
+                    btn.prop('disabled', true); // Prevent double add
+                    
+                    // Optional: You could reload the modal content here if you want perfect sync
+                    // For now, we rely on page refresh to populate the modal list perfectly, 
+                    // or we could append to the list via JS.
+                }
+            },
+            error: function() {
+                alert('Error adding to wishlist');
+            }
+        });
+    });
+
+    // 2. REMOVE FROM WISHLIST (AJAX - Optional, for inside Modal)
+    $(document).on('click', '.remove-wishlist-btn', function() {
+        const btn = $(this);
+        const courseId = btn.data('id');
+        
+        $.ajax({
+            url: "{{ url_for('remove_from_wishlist') }}",
+            type: "POST",
+            data: { course_id: courseId },
+            success: function(response) {
+                // Remove item from modal list
+                $('#wishlist-item-' + courseId).remove();
+                
+                // Update Badge
+                $('.wishlist-badge').text(response.count);
+                
+                // Reset the "Add" button on the main page if it exists
+                const addBtn = $(`form.ajax-add-wishlist input[value="${courseId}"]`).closest('form').find('button');
+                addBtn.removeClass('btn-success').addClass('btn-dark').prop('disabled', false).html('Add to wishlist');
+
+                // Update Total
+                $('#wishlist-total').text(response.total);
+            }
+        });
+    });
+  </script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

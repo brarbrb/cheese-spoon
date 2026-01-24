@@ -1,48 +1,10 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CheeseSpoon — Upload Grade Sheet</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
-</head>
+{% extends 'base.html' %}
 
-<body>
-  <nav id="top-navbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
-        <span>CheeseSpoon</span>
-        <img
-          src="{{ url_for('static', filename='logo.png') }}"
-          alt="CheeseSpoon"
-          class="brand-logo"
-        />
-      </a>
-      <div id="top-navbar-supported-content" class="collapse navbar-collapse">
-        <ul class="navbar-nav ml-auto align-items-lg-center">
-          <li class="nav-item">
-            <a class="btn btn-sm btn-outline-secondary mr-lg-2" href="{{ url_for('index') }}">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="btn btn-sm btn-outline-secondary mr-lg-2" href="{{ url_for('course_overview') }}">Course Overview</a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+{% block title %}Upload Grade Sheet{% endblock %}
 
-  <main class="container my-4">
+{% block content %}
     <div class="row justify-content-center">
       <div class="col-lg-8">
-
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            <div class="alert alert-secondary" role="alert">
-              {{ messages[0] }}
-            </div>
-          {% endif %}
-        {% endwith %}
 
         <div class="feature-card p-4">
           <h4 class="mb-1">Upload Your Grade Sheet</h4>
@@ -87,7 +49,7 @@
             </div>
 
             <div class="d-flex justify-content-between">
-              <a class="btn btn-outline-secondary" href="{{ url_for('index') }}">Back to Home</a>               
+              <a class="btn btn-outline-secondary" href="{{ url_for('index') }}">Back to Home</a>              
                <button class="btn btn-dark" type="submit">Parse & Continue →</button>
             </div>
           </form>
@@ -95,13 +57,11 @@
 
       </div>
     </div>
-  </main>
+{% endblock %}
 
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-
-  <script>
-    // File upload dropzone
+{% block scripts %}
+<script>
+    // File upload dropzone logic
     const dropzone = document.getElementById("dropzone");
     const fileInput = document.getElementById("gradesFileInput");
     const fileNameEl = document.getElementById("fileName");
@@ -116,38 +76,39 @@
       fileNameEl.textContent = `Selected: ${file.name}`;
     }
 
-    // MODIFIED: Removed the "click" and "keydown" listeners on dropzone.
-    // Because .dropzone-input covers the whole div (inset: 0), 
-    // the browser handles the click natively. Adding JS caused the "double open" bug.
+    if(fileInput) {
+        // Native change event
+        fileInput.addEventListener("change", () => {
+          showFileName(fileInput.files && fileInput.files[0]);
+        });
+    }
 
-    fileInput.addEventListener("change", () => {
-      showFileName(fileInput.files && fileInput.files[0]);
-    });
+    if(dropzone) {
+        // Visual drag-and-drop feedback
+        ["dragenter", "dragover"].forEach(evt => {
+          dropzone.addEventListener(evt, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.add("is-dragover");
+          });
+        });
 
-    // Visual drag-and-drop feedback
-    ["dragenter", "dragover"].forEach(evt => {
-      dropzone.addEventListener(evt, (e) => {
-        // We still need to prevent default to allow drop
-        e.preventDefault();
-        e.stopPropagation();
-        dropzone.classList.add("is-dragover");
-      });
-    });
+        ["dragleave", "drop"].forEach(evt => {
+          dropzone.addEventListener(evt, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.remove("is-dragover");
+          });
+        });
 
-    ["dragleave", "drop"].forEach(evt => {
-      dropzone.addEventListener(evt, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropzone.classList.remove("is-dragover");
-      });
-    });
-
-    dropzone.addEventListener("drop", (e) => {
-      const files = e.dataTransfer.files;
-      if (!files || files.length === 0) return;
-      fileInput.files = files;
-      showFileName(files[0]);
-    });
-  </script>
-</body>
-</html>
+        dropzone.addEventListener("drop", (e) => {
+          const files = e.dataTransfer.files;
+          if (!files || files.length === 0) return;
+          
+          // Manually assign files to input (if browser allows) or just show name
+          if(fileInput) fileInput.files = files;
+          showFileName(files[0]);
+        });
+    }
+</script>
+{% endblock %}
