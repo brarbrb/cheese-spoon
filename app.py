@@ -87,7 +87,7 @@ def review_courses():
             'id': c_id, 
             'title': title
         })
-    print(f"courses_display_data {courses_display_data}")
+    # print(f"courses_display_data {courses_display_data}")
     return render_template("review_courses.html", completed_courses=completed_courses, courses_list=courses_display_data)
 
 

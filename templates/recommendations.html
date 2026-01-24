@@ -9,11 +9,13 @@
     href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
     rel="stylesheet"
   />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
 </head>
 
 <body>
-  <nav id="top-navbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+  <nav id="top-navbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
         <span>CheeseSpoon</span>
@@ -24,6 +26,11 @@
         />
       </a>
 
+      <button class="btn btn-outline-dark d-lg-none ml-auto mr-2" data-toggle="modal" data-target="#wishlistModal">
+        <i class="fas fa-shopping-cart"></i> 
+        <span class="badge badge-light" id="mobileWishlistCount">0</span>
+      </button>
+
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#top-navbar-supported-content">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -31,17 +38,16 @@
       <div id="top-navbar-supported-content" class="collapse navbar-collapse">
         <ul class="navbar-nav ml-auto align-items-lg-center">
           <li class="nav-item">
-            <a class="btn btn-sm btn-outline-secondary mr-lg-2"
-               href="{{ url_for('index') }}">
-              Home
-            </a>
+            <a class="btn btn-sm btn-outline-secondary mr-lg-2" href="{{ url_for('index') }}">Home</a>
           </li>
-
           <li class="nav-item">
-            <a class="btn btn-sm btn-outline-secondary mr-lg-2"
-               href="{{ url_for('course_overview') }}">
-              Course Overview
-            </a>
+            <a class="btn btn-sm btn-outline-secondary mr-lg-2" href="{{ url_for('course_overview') }}">Course Overview</a>
+          </li>
+          <li class="nav-item d-none d-lg-block">
+            <button class="btn btn-sm btn-dark" data-toggle="modal" data-target="#wishlistModal">
+              <i class="fas fa-shopping-cart mr-1"></i> Wishlist
+              <span class="badge badge-light ml-1" id="wishlistCount">0</span>
+            </button>
           </li>
         </ul>
       </div>
@@ -56,26 +62,20 @@
           All eligible courses ranked by your preferences
         </div>
 
-        <!-- Applied Filters Summary -->
-        <div class="feature-card p-3 mb-3" style="height:auto; min-height:auto;">
+        <div class="feature-card p-3 mb-3" style="height: auto !important; min-height: auto;">
           <div class="d-flex justify-content-between align-items-start flex-wrap">
             <div>
               <div class="muted small mb-2"><strong>Applied Filters</strong></div>
               <div class="small">
                 <span class="muted">Semester:</span> {{ filters.semester }}<br>
-                <span class="muted">Completed courses:</span> {{ filters.completed_count }}<br>
-                <span class="muted">No exam filter:</span> {{ filters.no_exam }}<br>
+                <span class="muted">Completed:</span> {{ filters.completed_count }}<br>
                 <span class="muted">Min credits:</span> {{ filters.min_credits }}
               </div>
             </div>
-
             <div class="text-right">
-              <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('upload') }}">
-                Edit preferences
-              </a>
+              <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('upload') }}">Edit preferences</a>
             </div>
           </div>
-
           {% if user_query %}
           <div class="alert alert-light small mt-3 mb-0">
             <strong>Your query:</strong> {{ user_query }}
@@ -83,23 +83,14 @@
           {% endif %}
         </div>
 
-        <!-- Results count -->
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <div class="muted small">
-            Found <strong>{{ courses|length }}</strong> eligible courses
-          </div>
-
-          <div>
-            <button id="showAllBtn" class="btn btn-sm btn-outline-secondary">
-              Show all
-            </button>
-          </div>
+          <div class="muted small">Found <strong>{{ courses|length }}</strong> eligible courses</div>
+          <button id="showAllBtn" class="btn btn-sm btn-outline-secondary">Show all</button>
         </div>
 
-        <!-- Course Cards -->
         <div id="coursesList">
           {% for course in courses %}
-          <div class="feature-card rec-card p-3 mb-3 course-card" data-index="{{ loop.index0 }}">
+          <div class="feature-card rec-card p-3 mb-3 course-card" data-index="{{ loop.index0 }}" style="height: auto;">
             <div class="d-flex justify-content-between align-items-start">
               <div class="flex-grow-1">
                 <div class="d-flex align-items-center flex-wrap">
@@ -108,8 +99,6 @@
                   <h5 class="mb-0">{{ course.title }}</h5>
                   <span class="muted small ml-2">({{ "%.1f"|format(course.credits) }} pts)</span>
                 </div>
-
-                <!-- Show key metadata -->
                 <div class="mt-2 small">
                   <span class="muted">Avg grade:</span> {{ "%.0f"|format(course.avg_grade_all_sem) }}%
                   <span class="ml-2 muted">|</span>
@@ -118,26 +107,22 @@
                   <span class="ml-2 muted">Workload:</span> {{ "%.1f"|format(course.workload_rating) }}/5
                 </div>
               </div>
-
               <div class="text-right ml-3">
                 <div class="muted small">Combined Score</div>
                 <div class="fit-score">{{ "%.0f"|format(course.combined_score * 100) }}%</div>
               </div>
             </div>
 
-            <!-- Score bar -->
             <div class="fit-bar mt-2 mb-3">
               <div class="fit-bar-fill" style="width: {{ (course.combined_score * 100)|int }}%;"></div>
             </div>
 
-            <!-- Details section -->
             <div class="row small">
               <div class="col-md-6">
                 <div class="muted"><strong>Quick info</strong></div>
                 <div><span class="muted">Exam:</span> {{ course.moed_a if course.moed_a else 'No exam' }}</div>
                 <div><span class="muted">Lecturer:</span> {{ course.lecturer if course.lecturer else 'N/A' }}</div>
               </div>
-
               <div class="col-md-6">
                 <div class="muted"><strong>Score breakdown</strong></div>
                 <div><span class="muted">Semantic:</span> {{ "%.2f"|format(course.semantic_score) }}</div>
@@ -145,13 +130,11 @@
               </div>
             </div>
 
-            <!-- Actions -->
             <div class="d-flex justify-content-between mt-3">
               <a class="btn btn-sm btn-outline-secondary"
                  href="{{ url_for('course_overview', course_id=course.ID) }}">
                 View details
               </a>
-
               <button
                 class="btn btn-sm btn-dark add-to-wishlist-btn"
                 type="button"
@@ -163,7 +146,6 @@
               </button>
             </div>
 
-            <!-- Collapsible prerequisites -->
             {% if course.prerequisites %}
             <div class="mt-2">
               <button class="btn btn-sm btn-link p-0" type="button"
@@ -181,75 +163,79 @@
           {% endfor %}
 
           {% if courses|length == 0 %}
-          <div class="alert alert-light">
-            No courses found matching your criteria. Try adjusting your filters or preferences.
-          </div>
+          <div class="alert alert-light">No courses found matching your criteria.</div>
           {% endif %}
         </div>
 
-        <!-- Show more button (initially hidden) -->
         <div id="showMoreContainer" class="text-center mt-3" style="display:none;">
-          <button id="showMoreBtn" class="btn btn-outline-dark">
-            Show more courses
-          </button>
+          <button id="showMoreBtn" class="btn btn-outline-dark">Show more courses</button>
         </div>
-
       </div>
 
-      <!-- Sidebar: Wishlist -->
       <div class="col-lg-4">
-        <div class="feature-card p-3 sticky-top" style="top: 20px;">
-          <div class="d-flex justify-content-between align-items-center">
-            <div class="muted small"><strong>Wishlist</strong></div>
-            <div class="muted small">
-              Total: <span id="wishlistCredits">0.0</span> pts
+        <div class="chat-container">
+          <div class="chat-header d-flex justify-content-between align-items-center">
+            <strong><i class="fas fa-robot mr-2"></i>CheeseSpoon Assistant</strong>
+          </div>
+
+          <div id="chatHistory" class="chat-messages">
+            <div class="chat-message bot">
+              Hi! I'm here to help. Ask me about course workloads, exam formats, or for comparison between two courses.
             </div>
           </div>
 
-          <div id="wishlistEmpty" class="muted small mt-2">
-            No courses yet. Click "Add to wishlist" to build your plan.
-          </div>
-
-          <div id="wishlistList" class="list-group mt-2" style="display:none;"></div>
-
-          <div class="mt-3">
-            <button id="clearWishlist" class="btn btn-sm btn-outline-secondary btn-block" type="button" disabled>
-              Clear wishlist
-            </button>
-            <button id="exportPDF" class="btn btn-sm btn-dark btn-block mt-2" type="button" disabled>
-              Export to PDF
-            </button>
-          </div>
-
-          <!-- Ranking weights used -->
-          <div class="mt-4">
-            <div class="muted small mb-2"><strong>Ranking weights</strong></div>
-            <div class="small">
-              <div><span class="muted">Semantic:</span> {{ "%.2f"|format(weights.semantic) }}</div>
-              <div><span class="muted">Credits:</span> {{ "%.2f"|format(weights.credits) }}</div>
-              <div><span class="muted">Avg grade:</span> {{ "%.2f"|format(weights.avg_grade) }}</div>
-              <div><span class="muted">Workload:</span> {{ "%.2f"|format(weights.workload_rating) }}</div>
-              <div><span class="muted">General:</span> {{ "%.2f"|format(weights.general_rating) }}</div>
+          <div class="chat-input-area">
+            <div class="input-group">
+              <input type="text" id="chatInput" class="form-control" placeholder="Type a message..." aria-label="Ask a question">
+              <div class="input-group-append">
+                <button class="btn btn-dark" type="button" id="sendMessageBtn">
+                  <i class="fas fa-paper-plane"></i>
+                </button>
+              </div>
+            </div>
+            <div class="muted small mt-2 text-center" style="font-size: 0.7rem;">
+              AI can make mistakes. Verify important info.
             </div>
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="d-flex justify-content-between mt-4 mb-4">
-      <a class="btn btn-outline-secondary" href="{{ url_for('upload') }}">Back to upload</a>
     </div>
   </main>
+
+  <div class="modal fade" id="wishlistModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Your Wishlist</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div id="wishlistEmpty" class="text-center muted py-4">
+            Your wishlist is empty.
+          </div>
+          <div id="wishlistItems" class="list-group"></div>
+          <div class="mt-3 text-right">
+             <strong class="mr-2">Total:</strong> <span id="modalTotalCredits">0.0</span> pts
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" id="clearWishlistBtn" disabled>Clear</button>
+          <button type="button" class="btn btn-dark">Export PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // --- Pagination / Show more logic ---
+    // --- Pagination Logic ---
     const INITIAL_DISPLAY = 10;
     const INCREMENT = 10;
     let currentlyShowing = INITIAL_DISPLAY;
-
     const allCards = document.querySelectorAll('.course-card');
     const showMoreBtn = document.getElementById('showMoreBtn');
     const showMoreContainer = document.getElementById('showMoreContainer');
@@ -259,125 +245,145 @@
       allCards.forEach((card, idx) => {
         card.style.display = idx < currentlyShowing ? 'block' : 'none';
       });
-
-      // Show "show more" button if there are hidden cards
-      if (currentlyShowing < allCards.length) {
-        showMoreContainer.style.display = 'block';
-      } else {
-        showMoreContainer.style.display = 'none';
-      }
+      showMoreContainer.style.display = (currentlyShowing < allCards.length) ? 'block' : 'none';
     }
 
-    showMoreBtn.addEventListener('click', () => {
+    if(showMoreBtn) showMoreBtn.addEventListener('click', () => {
       currentlyShowing += INCREMENT;
       updateDisplay();
     });
 
-    showAllBtn.addEventListener('click', () => {
+    if(showAllBtn) showAllBtn.addEventListener('click', () => {
       currentlyShowing = allCards.length;
       updateDisplay();
     });
-
-    // Initial display
     updateDisplay();
 
-    // --- Wishlist functionality ---
+    // --- Wishlist Logic ---
     const wishlist = new Map();
-    const wishlistList = document.getElementById("wishlistList");
-    const wishlistEmpty = document.getElementById("wishlistEmpty");
-    const wishlistCredits = document.getElementById("wishlistCredits");
-    const clearBtn = document.getElementById("clearWishlist");
-    const exportBtn = document.getElementById("exportPDF");
+    const wishlistCountBadge = document.getElementById("wishlistCount");
+    const mobileWishlistCount = document.getElementById("mobileWishlistCount");
+    const wishlistItemsContainer = document.getElementById("wishlistItems");
+    const wishlistEmptyMsg = document.getElementById("wishlistEmpty");
+    const modalTotalCredits = document.getElementById("modalTotalCredits");
+    const clearWishlistBtn = document.getElementById("clearWishlistBtn");
 
-    function sumCredits() {
-      let total = 0;
-      wishlist.forEach(c => total += c.points);
-      return total;
+    function updateWishlistUI() {
+      const count = wishlist.size;
+      wishlistCountBadge.innerText = count;
+      mobileWishlistCount.innerText = count;
+
+      wishlistItemsContainer.innerHTML = "";
+      let totalPts = 0;
+      
+      if (count === 0) {
+        wishlistEmptyMsg.style.display = 'block';
+        clearWishlistBtn.disabled = true;
+      } else {
+        wishlistEmptyMsg.style.display = 'none';
+        clearWishlistBtn.disabled = false;
+        
+        wishlist.forEach((item, id) => {
+          totalPts += item.points;
+          const el = document.createElement('div');
+          el.className = "list-group-item d-flex justify-content-between align-items-center";
+          el.innerHTML = `
+            <div>
+              <span class="kbd-pill mr-1">${item.id}</span> <strong>${item.name}</strong>
+              <div class="small muted">${item.points} pts</div>
+            </div>
+            <button class="btn btn-sm text-danger remove-item-btn" data-id="${id}">&times;</button>
+          `;
+          wishlistItemsContainer.appendChild(el);
+        });
+
+        document.querySelectorAll('.remove-item-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const id = e.target.closest('button').dataset.id;
+            removeFromWishlist(id);
+          });
+        });
+      }
+      modalTotalCredits.innerText = totalPts.toFixed(1);
     }
 
-    function renderWishlist() {
-      const hasItems = wishlist.size > 0;
-
-      wishlistEmpty.style.display = hasItems ? "none" : "block";
-      wishlistList.style.display = hasItems ? "block" : "none";
-      clearBtn.disabled = !hasItems;
-      exportBtn.disabled = !hasItems;
-
-      wishlistCredits.textContent = sumCredits().toFixed(1);
-
-      wishlistList.innerHTML = "";
-      wishlist.forEach((c) => {
-        const row = document.createElement("div");
-        row.className = "list-group-item d-flex justify-content-between align-items-center";
-
-        row.innerHTML = `
-          <div class="mr-2">
-            <div><span class="kbd-pill">${c.id}</span> <strong>${escapeHtml(c.name)}</strong></div>
-            <div class="muted small">${c.points.toFixed(1)} pts</div>
-          </div>
-          <button class="btn btn-sm btn-outline-secondary">Remove</button>
-        `;
-
-        row.querySelector("button").onclick = () => {
-          wishlist.delete(c.id);
-          setButtonState(c.id, false);
-          renderWishlist();
-        };
-
-        wishlistList.appendChild(row);
-      });
+    function toggleButtonState(id, isAdded) {
+       document.querySelectorAll(`.add-to-wishlist-btn[data-course-id="${id}"]`).forEach(btn => {
+         if (isAdded) {
+           btn.innerHTML = '<i class="fas fa-check"></i> Added';
+           btn.classList.remove('btn-dark');
+           btn.classList.add('btn-outline-success');
+           btn.disabled = true;
+         } else {
+           btn.innerHTML = 'Add to wishlist';
+           btn.classList.add('btn-dark');
+           btn.classList.remove('btn-outline-success');
+           btn.disabled = false;
+         }
+       });
     }
 
-    function setButtonState(courseId, added) {
-      document.querySelectorAll(`.add-to-wishlist-btn[data-course-id="${courseId}"]`).forEach(btn => {
-        if (added) {
-          btn.textContent = "Added";
-          btn.classList.remove("btn-dark");
-          btn.classList.add("btn-outline-secondary");
-          btn.disabled = true;
-        } else {
-          btn.textContent = "Add to wishlist";
-          btn.classList.add("btn-dark");
-          btn.classList.remove("btn-outline-secondary");
-          btn.disabled = false;
-        }
-      });
+    function addToWishlist(id, name, points) {
+       if(!wishlist.has(id)) {
+         wishlist.set(id, { id, name, points });
+         updateWishlistUI();
+         toggleButtonState(id, true);
+         
+         // [DELETED] Toast popup trigger was here
+       }
     }
 
-    function escapeHtml(s) {
-      return String(s)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+    function removeFromWishlist(id) {
+      if(wishlist.has(id)) {
+        wishlist.delete(id);
+        updateWishlistUI();
+        toggleButtonState(id, false);
+      }
     }
 
     document.querySelectorAll(".add-to-wishlist-btn").forEach(btn => {
       btn.addEventListener("click", () => {
-        const id = btn.dataset.courseId;
-        const name = btn.dataset.courseName;
-        const points = Number(btn.dataset.coursePoints);
-
-        if (!wishlist.has(id)) {
-          wishlist.set(id, { id, name, points });
-          setButtonState(id, true);
-          renderWishlist();
-        }
+        addToWishlist(
+          btn.dataset.courseId,
+          btn.dataset.courseName,
+          parseFloat(btn.dataset.coursePoints)
+        );
       });
     });
 
-    clearBtn.addEventListener("click", () => {
-      wishlist.forEach((_, id) => setButtonState(id, false));
+    clearWishlistBtn.addEventListener('click', () => {
+      wishlist.forEach((_, id) => toggleButtonState(id, false));
       wishlist.clear();
-      renderWishlist();
+      updateWishlistUI();
     });
 
-    exportBtn.addEventListener("click", () => {
-      alert("PDF export feature coming soon!");
-    });
+    // --- Chat Logic ---
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendMessageBtn');
+    const chatHistory = document.getElementById('chatHistory');
 
-    renderWishlist();
+    function appendMessage(text, sender) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `chat-message ${sender}`;
+      msgDiv.innerText = text;
+      chatHistory.appendChild(msgDiv);
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    function handleSend() {
+      const text = chatInput.value.trim();
+      if(!text) return;
+      appendMessage(text, 'user');
+      chatInput.value = '';
+      setTimeout(() => {
+        appendMessage("I'm just a demo interface right now. I'll be connected to a real LLM soon!", 'bot');
+      }, 800);
+    }
+
+    sendBtn.addEventListener('click', handleSend);
+    chatInput.addEventListener('keypress', (e) => {
+      if(e.key === 'Enter') handleSend();
+    });
   </script>
 </body>
 </html>
