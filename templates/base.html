@@ -32,7 +32,9 @@
         <ul class="navbar-nav ml-auto align-items-lg-center">
           
           <li class="nav-item">
-            <a class="btn btn-sm btn-outline-secondary mr-2" href="{{ url_for('index') }}">Home</a>
+            <a class="btn btn-sm btn-warning mr-2 text-white shadow-sm" href="https://forms.gle/bNyVLDeNpJwNtVi57" target="_blank">
+               <i class="fas fa-star mr-1"></i> Rate Us
+            </a>
           </li>
 
           {% if request.endpoint == 'course_overview' %}
@@ -55,6 +57,7 @@
               <span class="wishlist-badge badge badge-light ml-1">{{ wishlist_count }}</span>
             </button>
           </li>
+
         </ul>
       </div>
     </div>
