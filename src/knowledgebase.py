@@ -72,17 +72,7 @@ def check_prerequisites(courses_list,prerequisites):
 def filter_according_to_requirements_and_untaken_and_prereq(response,courses_list,no_exam,min_credits):
     # 3. Filter Locally in Python
     # Convert list to set for super-fast lookups (O(1) speed)
-    excluded_set = set()
-    for course_id in courses_list:
-        # Normalize: remove leading zeros and store all variants
-        print(f'Course id is {str(course_id)}')
-        normalized_id = str(course_id).lstrip('0') or '0'  # Keep at least one '0' if all zeros
-        print(f'normalized id is {str(normalized_id)}')
-        excluded_set.add(normalized_id)
-        excluded_set.add('0' + normalized_id)
-        excluded_set.add('00' + normalized_id)
-        excluded_set.add(str(course_id))  # Also add original format
-
+    excluded_set = set(courses_list)
     print(f"[DEBUG] Excluded set: {excluded_set}")
     filtered_courses = []
 
@@ -91,7 +81,11 @@ def filter_according_to_requirements_and_untaken_and_prereq(response,courses_lis
         prereq= json.loads(match["metadata"]["prerequisites"])
 
         can_take_it = check_prerequisites(courses_list,prereq)
-        if can_take_it:
+        # Check if already taken
+        if str(match.id) in excluded_set:
+            print(f'[DEBUG] EXCLUDED: {match.id} (normalized: {match.id})')
+            continue
+        elif can_take_it:
             # match.id is the Course ID (assuming you used it as the vector ID)
             if no_exam == True and match["metadata"]["moed_a"] != "":
                 continue
@@ -100,10 +94,7 @@ def filter_according_to_requirements_and_untaken_and_prereq(response,courses_lis
 
 
 
-            # Check if already taken
-            if str(match.id) in excluded_set:
-                print(f'[DEBUG] EXCLUDED: {match.id} (normalized: {match.id})')
-                continue
+
 
             grades_dict=json.loads(match["metadata"]["avg_grades"])
 
@@ -124,52 +115,66 @@ def filter_according_to_requirements_and_untaken_and_prereq(response,courses_lis
             print(f'Cannot take {match["id"]}')
     return filtered_courses
 
+def get_knowledgebase(semester_name,user_query="",only_ids_titles=False):
+    # Get index
+    print(f"[DEBUG] Getting index for semester: {semester_name}")
+    index = get_index_by_semester(semester_name=semester_name)
+    print(f"[DEBUG] Index obtained successfully")
 
+    # Get index dimensions
+    print(f"[DEBUG] Describing index stats...")
+    stats = index.describe_index_stats()
+    print(f"[DEBUG] Index stats: {stats}")
+
+    # Create query vector
+    if user_query == "":
+        print(f"[DEBUG] Creating dummy vector of dimension {stats['dimension']}")
+        embedded_query = [0.0] * stats['dimension']
+    else:
+        print(f"[DEBUG] Embedding query: '{user_query}'")
+        embedded_query = embed_query(user_query)
+        print(
+            f"[DEBUG] Embedded query shape: {embedded_query.shape if hasattr(embedded_query, 'shape') else len(embedded_query)}")
+        # Convert numpy array to list if needed
+        if hasattr(embedded_query, 'tolist'):
+            embedded_query = embedded_query.tolist()
+
+    print(f"[DEBUG] Embedded query dimension: {len(embedded_query)}")
+
+    # Query Pinecone
+    print(f"[DEBUG] Querying Pinecone with top_k=10000...")
+    try:
+        response = index.query(
+            vector=embedded_query,
+            top_k=10000,
+            include_metadata=True,
+            timeout=30  # Add timeout
+        )
+        if only_ids_titles:
+            df = pd.DataFrame(
+                [
+                    {
+                        "ID": m.id,
+                        "title": m.metadata.get("title") if m.metadata else None
+                    }
+                    for m in response.matches
+                ]
+            )
+            return df
+
+        print(f"[DEBUG] Query successful! Got {len(response.matches)} matches")
+    except Exception as query_error:
+        print(f"[ERROR] Pinecone query failed: {query_error}")
+        print(f"[ERROR] Query error type: {type(query_error)}")
+        raise
+    return response
 def get_all_untaken_courses_with_requirements(semester_name="WINTER_2025_2026", courses_list=[], no_exam=False,
                                               min_credits=0, user_query=""):
     print(f"[DEBUG] Starting query with: user_query='{user_query}'")
 
+
     try:
-        # Get index
-        print(f"[DEBUG] Getting index for semester: {semester_name}")
-        index = get_index_by_semester(semester_name=semester_name)
-        print(f"[DEBUG] Index obtained successfully")
-
-        # Get index dimensions
-        print(f"[DEBUG] Describing index stats...")
-        stats = index.describe_index_stats()
-        print(f"[DEBUG] Index stats: {stats}")
-
-        # Create query vector
-        if user_query == "":
-            print(f"[DEBUG] Creating dummy vector of dimension {stats['dimension']}")
-            embedded_query = [0.0] * stats['dimension']
-        else:
-            print(f"[DEBUG] Embedding query: '{user_query}'")
-            embedded_query = embed_query(user_query)
-            print(
-                f"[DEBUG] Embedded query shape: {embedded_query.shape if hasattr(embedded_query, 'shape') else len(embedded_query)}")
-            # Convert numpy array to list if needed
-            if hasattr(embedded_query, 'tolist'):
-                embedded_query = embedded_query.tolist()
-
-        print(f"[DEBUG] Embedded query dimension: {len(embedded_query)}")
-
-        # Query Pinecone
-        print(f"[DEBUG] Querying Pinecone with top_k=10000...")
-        try:
-            response = index.query(
-                vector=embedded_query,
-                top_k=10000,
-                include_metadata=True,
-                timeout=30  # Add timeout
-            )
-            print(f"[DEBUG] Query successful! Got {len(response.matches)} matches")
-        except Exception as query_error:
-            print(f"[ERROR] Pinecone query failed: {query_error}")
-            print(f"[ERROR] Query error type: {type(query_error)}")
-            raise
-
+        response = get_knowledgebase(semester_name,user_query)
         # Filter results
         print(f"[DEBUG] Filtering results...")
         filtered_courses = filter_according_to_requirements_and_untaken_and_prereq(
@@ -245,4 +250,4 @@ def recommend_courses(semester_name="WINTER_2025_2026",courses_list=[],no_exam=F
 
     # print(reranked_courses.head(10)[['title','avg_grade_all_sem',"prerequisites"]])
     return reranked_courses
-# recommend_courses(courses_list=['02340221'])
+# recommend_courses(courses_list=['00960210'])
