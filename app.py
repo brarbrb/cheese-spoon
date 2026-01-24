@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, session
 import re
-from src.utilities import parse_grades_pdf
+from src.utilities import parse_grades_pdf, COURSE_TITLES
 from src.knowledgebase import recommend_courses
 
 app = Flask(__name__)
@@ -26,24 +26,20 @@ def upload():
         file = request.files.get("grades_file")
 
         if not file or file.filename == '':
-            flash("Please select a file to upload.")
-            return redirect(url_for('upload'))
-
-        try:
-            # Parse the grade sheet
-            completed_course_ids = parse_grades_pdf(file)
-
-            if not completed_course_ids:
-                flash("No courses found in the uploaded file. Please check the file and try again.")
-                return redirect(url_for('upload'))
-
-            # Store in session
-            session['completed_courses'] = completed_course_ids
-
-            # Redirect to review page
+            session['completed_courses'] = []
+            flash("Skipped upload. You can manually add courses now.")
             return redirect(url_for('review_courses'))
 
-        except Exception as e:
+        try:
+            completed_course_ids = parse_grades_pdf(file) #parsing grade sheet
+            if not completed_course_ids:
+                flash("No courses found in the uploaded file. Try again or skip.")
+                return redirect(url_for('upload'))
+
+            session['completed_courses'] = completed_course_ids
+            return redirect(url_for('review_courses'))
+
+        except Exception as e: # any other error
             flash(f"Error parsing grade sheet: {str(e)}")
             return redirect(url_for('upload'))
 
@@ -51,30 +47,48 @@ def upload():
 
 
 # STEP 2: Review and confirm courses
-@app.route("/review-courses", methods=["GET", "POST"])
+@app.route("/review_courses", methods=["GET", "POST"])
 def review_courses():
+    # safe fallback (in case someone navigates here directly)
+    if 'completed_courses' not in session: 
+        session['completed_courses'] = []
+        
     if request.method == "POST":
-        # Get confirmed courses from form
-        confirmed_courses = request.form.getlist("confirmed_courses")
-
-        if not confirmed_courses:
-            flash("Please select at least one course to continue.")
+        if "new_course_id" in request.form: # user adds courses manually 
+            new_course = request.form.get("new_course_id") # TODO: check
+            # TODO: add normalize? 
+            if new_course: 
+                current_courses = session.get('completed_courses', [])
+                if new_course not in current_courses:
+                    current_courses.append(new_course)
+                    session['completed_courses'] = current_courses
+                    flash(f"Added {new_course}.")
+                else: 
+                    flash(f"{new_course} is already in the list.")
             return redirect(url_for('review_courses'))
-
-        # Update session with confirmed courses
+                  
+        # list all parsed (or updated) courses
+        confirmed_courses = request.form.getlist("confirmed_courses")
         session['completed_courses'] = confirmed_courses
-
-        # Redirect to filters page
+        # if not confirmed_courses:
+        #     flash("Please select at least one course to continue.")
+        #     return redirect(url_for('review_courses'))
         return redirect(url_for('filters'))
 
     # GET request - show review page
     completed_courses = session.get('completed_courses', [])
-
-    if not completed_courses:
-        flash("No courses found. Please upload your grade sheet first.")
-        return redirect(url_for('upload'))
-
-    return render_template("review_courses.html", completed_courses=completed_courses)
+    courses_display_data = []
+    for c_id in completed_courses:
+        # Fallback to the ID if title is not found in KB.csv
+        c_id = int(c_id)
+        # print(f"cids are {c_id}")
+        title = COURSE_TITLES.get(str(c_id), c_id)
+        courses_display_data.append({
+            'id': c_id, 
+            'title': title
+        })
+    print(f"courses_display_data {courses_display_data}")
+    return render_template("review_courses.html", completed_courses=completed_courses, courses_list=courses_display_data)
 
 
 # STEP 3: Set filters and weights
@@ -118,8 +132,8 @@ def filters():
     completed_courses = session.get('completed_courses', [])
 
     if not completed_courses:
-        flash("No courses found. Please upload your grade sheet first.")
-        return redirect(url_for('upload'))
+        flash("No courses found.")
+        return redirect(url_for('review_courses'))
 
     confirmed_count = len(completed_courses)
     return render_template("filters.html", confirmed_count=confirmed_count)

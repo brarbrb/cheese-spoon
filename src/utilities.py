@@ -64,7 +64,6 @@ def load_course_titles():
     for title in df['title']: 
         full_id_str = title.split('-')[0].strip()
         clean_id = full_id_str[-6:] # Takes "094101" from "00940101"
-        
         course_map[clean_id] = title
     # print(course_map)
     return course_map
