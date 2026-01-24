@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, session, jsonify
-import re
+import re, json
 from src.utilities import parse_grades_pdf, parse_review_summary
-from src.knowledgebase import recommend_courses
-from src.agent import chat_with_assistant  # ADD THIS IMPORT
+from src.knowledgebase import recommend_courses, get_course_by_id
+from src.agent import chat_with_assistant 
 
 app = Flask(__name__)
 app.secret_key = "dev"  # change later
@@ -13,11 +13,97 @@ def index():
     return render_template("index.html")
 
 
-@app.get("/course-overview")
+@app.route("/course-overview", methods=["GET", "POST"])
 def course_overview():
-    """Display all available courses (demo view)"""
-    # TODO: implement course overview logic
-    return render_template("course_overview.html")
+    """Display specific course details and structured summary"""
+    course_data = None
+    query = ""
+    alternatives = []
+    
+    if request.method == "POST":
+        # Get query and clean it
+        query = request.form.get("course_id", "").strip()
+        clean_id = re.sub(r"\D", "", query)
+        
+        if clean_id:
+            try:
+                # 1. Fetch metadata from Pinecone
+                semester = session.get('filters', {}).get('semester', 'WINTER_2025_2026')
+                raw_data = get_course_by_id(clean_id, semester)
+                
+                if raw_data:
+                    # 2. Parse the review summary string into structured parts
+                    summary_parts = parse_review_summary(raw_data.get('reviews_summary', ''))
+                    
+                    # 3. Calculate average grade from the JSON dictionary
+                    avg_grade = 0
+                    try:
+                        grades_dict = json.loads(raw_data.get('avg_grades', '{}'))
+                        if grades_dict:
+                            avg_grade = sum(grades_dict.values()) / len(grades_dict)
+                    except:
+                        avg_grade = 0
+
+                    # 4. Parse prerequisites
+                    prereqs = []
+                    try:
+                        prereqs = json.loads(raw_data.get('prerequisites', '[]'))
+                        # Flatten list of lists for display if simple, or keep structure
+                        flat_prereqs = []
+                        for group in prereqs:
+                            flat_prereqs.append(" OR ".join(group))
+                        prereqs = flat_prereqs
+                    except:
+                        prereqs = []
+
+                    # 5. Build the display object
+                    course_data = {
+                        "id": raw_data.get('id', clean_id),
+                        "name": raw_data.get('title', 'Unknown Course'),
+                        "points": float(raw_data.get('credits', 0)),
+                        "rating_5": float(raw_data.get('general_rating', 0) or 0),
+                        "workload_rating": float(raw_data.get('workload_rating', 0) or 0),
+                        
+                        # Structured Summary
+                        "summary_interest": summary_parts.get('interest'),
+                        "summary_workload": summary_parts.get('workload'),
+                        "summary_bottom_line": summary_parts.get('bottom_line'),
+                        
+                        # Facts
+                        "prereqs": prereqs,
+                        "moed_a": raw_data.get('moed_a'),
+                        "moed_b": raw_data.get('moed_b'),
+                        "avg_grade": avg_grade
+                    }
+
+                    # 6. Get "Similar Courses" (Alternatives)
+                    # We use the course name as a search query to find semantic matches
+                    try:
+                        # Fetch recommendations based on the title
+                        recs_df = recommend_courses(
+                            semester_name=semester,
+                            courses_list=[clean_id], # Exclude current course
+                            user_query=course_data['name'], # Search by title
+                            semantic_weight=0.9, # High weight on semantic match
+                            credits_weight=0,
+                            avg_grade_weight=0.1,
+                            workload_rating_weight=0,
+                            general_rating_weight=0
+                        )
+                        
+                        # Take top 3
+                        if not recs_df.empty:
+                            alternatives = recs_df.head(3).to_dict('records')
+                    except Exception as e:
+                        print(f"Error fetching alternatives: {e}")
+                else:
+                    flash(f"Course {clean_id} not found in database.")
+
+            except Exception as e:
+                print(f"Overview Error: {e}")
+                flash("An error occurred while fetching course details.")
+
+    return render_template("course_overview.html", course=course_data, query=query, alternatives=alternatives)
 
 
 # STEP 1: Upload grade sheet

@@ -121,3 +121,7 @@ def parse_review_summary(text):
     parsed['bottom_line'] = match_bottom.group(1).strip() if match_bottom else ""
     
     return parsed
+
+# --- 3. Helper function to normalize format to 6 digit ---
+def normalize_course_id(s: str) -> str:
+    return re.sub(r"\D", "", s)[:6]

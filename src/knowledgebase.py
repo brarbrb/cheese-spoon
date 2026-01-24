@@ -257,3 +257,25 @@ def recommend_courses(semester_name="WINTER_2025_2026",courses_list=[],no_exam=F
     return reranked_courses
 # recommend_courses(courses_list=['00960210'])
 # print(recommend_courses(courses_list=['00960210']).columns)
+
+
+def get_course_by_id(course_id, semester_name="WINTER_2025_2026"):
+    """
+    Fetch a single course's metadata directly by ID.
+    """
+    try:
+        index = get_index_by_semester(semester_name)
+        # Fetch by ID (returns a dictionary with vectors)
+        # Note: Pinecone IDs are strings
+        response = index.fetch(ids=[str(course_id)])
+        
+        if response and response.vectors and str(course_id) in response.vectors:
+            vector_data = response.vectors[str(course_id)]
+            metadata = vector_data.metadata
+            metadata['id'] = vector_data.id
+            return metadata
+        else:
+            return None
+    except Exception as e:
+        print(f"[ERROR] Failed to fetch course {course_id}: {e}")
+        return None
