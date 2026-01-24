@@ -1,11 +1,12 @@
 import pdfplumber
 import re 
 import pandas as pd
-from knowledgebase import get_knowledgebase
-#
-SEMSTER_NAME = "WINTER_2025_2026"
-KB = get_knowledgebase(SEMSTER_NAME,user_query="",only_ids_titles=True)
-print((KB))
+from src.knowledgebase import get_knowledgebase
+
+SEMESTER_NAME = "WINTER_2025_2026"
+KB = get_knowledgebase(SEMESTER_NAME,user_query="",only_ids_titles=True)
+print(KB)
+
 # --- 1. Helper Function to Parse PDF ---
 def parse_grades_pdf(file_storage):
     """

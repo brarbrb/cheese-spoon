@@ -3,9 +3,11 @@ from dotenv import load_dotenv
 from pinecone import Pinecone
 import numpy as np
 import pandas as pd
-from sentence_transformers import SentenceTransformer
+# from sentence_transformers import SentenceTransformer
 import torch
 import json
+from google import genai
+
 
 DEFAULT_AVG_GRADE = 60
 
@@ -40,21 +42,19 @@ def get_device():
         print("No GPU detected. Consider enabling GPU in Runtime -> Change runtime type")
     return device
 def get_embedding_model():
-    device = get_device()
-    model_name = os.getenv("EMBEDDING_MODEL")
-    model = SentenceTransformer(model_name, device=device)
+    key = os.getenv("GOOLGE_API_KEY")
+    model = genai.Client(api_key=key)
     return model
 def embed_query(query):
-    device= get_device()
+    model_name = os.getenv("EMBEDDING_MODEL")
     model = get_embedding_model()
-    embedd_query = model.encode(
-        "query: " + query,
-        convert_to_numpy=True,
-        show_progress_bar=False,
-        device=device,
-        normalize_embeddings=True
+    embedd_query = model.models.embed_content(
+        model=model_name,
+        contents=query,
+        config={'task_type': 'RETRIEVAL_QUERY'} # מותאם לשמירה במסד נתונים לחיפוש
     )
-    return embedd_query
+
+    return embedd_query.embeddings[0].values
 
 def check_prerequisites(courses_list,prerequisites):
     if len(prerequisites) == 0:
