@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from pinecone import Pinecone
 from google import genai
 import json
+from google.genai import types
 
 # Initialize Google GenAI client
 load_dotenv()
@@ -43,7 +44,8 @@ def generate_embedding(text):
     try:
         result = genai_client.models.embed_content(
             model=EMBEDDING_MODEL,
-            contents=text
+            contents=text,
+            config=types.EmbedContentConfig(task_type="SEMANTIC_SIMILARITY")
         )
         return result.embeddings[0].values
     except Exception as e:
@@ -51,7 +53,7 @@ def generate_embedding(text):
         return None
 
 
-def search_reviews(query, semester_name="WINTER_2025_2026_RAG", top_k=8):
+def search_reviews(query, semester_name="WINTER_2025_2026_RAG", top_k=15):
     """
     Search for relevant course reviews based on user query
 
@@ -136,6 +138,8 @@ def build_context(search_results):
         course_id = result['course_id']
         review = result['review_text']
 
+
+
         context_parts.append(f"\n--- ביקורת {i} | {course_title} ({course_id}) ---\n{review}")
 
     full_context = "\n".join(context_parts)
@@ -212,8 +216,7 @@ def chat_with_assistant(user_message, semester_name="WINTER_2025_2026_RAG", conv
 ביקורות רלוונטיות מהמאגר:
 {context}
 
-בבקשה ענה על השאלה בצורה ישירה וספציפית בהתבסס על הביקורות. 
-אל תתן סיכום כללי - ענה בדיוק על מה שנשאל.
+בבקשה ענה על השאלה בהתבסס על הביקורות. 
 אם השאלה משווה בין קורסים - הצג את ההבדלים הספציפיים.
 אם אין מידע רלוונטי - אמר זאת."""
 
@@ -234,7 +237,7 @@ def chat_with_assistant(user_message, semester_name="WINTER_2025_2026_RAG", conv
             config={
                 "system_instruction": system_prompt,
                 "temperature": 0.4,  # Lower temperature for more focused answers
-                "max_output_tokens": 800,
+                "max_output_tokens": 5000,
             }
         )
 
@@ -260,6 +263,7 @@ def chat_with_assistant(user_message, semester_name="WINTER_2025_2026_RAG", conv
                 seen_courses[course_key] = {
                     'course_id': result['course_id'],
                     'course_title': result['course_title'],
+
                     'relevance_score': round(result['score'] * 100, 1)
                 }
 
@@ -316,7 +320,7 @@ def answer_course_question(course_id, question, semester_name="WINTER_2025_2026_
         print(f"Formatted query: {query}")
 
         # Search for reviews of this specific course
-        search_results = search_reviews(query, semester_name, top_k=10)
+        search_results = search_reviews(query, semester_name, top_k=15)
 
         # Filter to only this course and high relevance
         course_reviews = [
