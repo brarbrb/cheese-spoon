@@ -4,14 +4,9 @@ from pinecone import Pinecone
 from google import genai
 import json
 from google.genai import types
-
+from src.knowledgebase import embed_query
 # Initialize Google GenAI client
-load_dotenv()
-GOOGLE_API_KEY = os.getenv("GOOLGE_API_KEY")
-genai_client = genai.Client(api_key=GOOGLE_API_KEY)
 
-EMBEDDING_MODEL = "text-embedding-004"
-CHAT_MODEL = "gemini-2.5-flash"  # or your preferred model
 
 
 
@@ -39,18 +34,7 @@ def get_index_by_semester(semester_name):
     return index
 
 
-def generate_embedding(text):
-    """Generate embedding using Google's text-embedding-004 model"""
-    try:
-        result = genai_client.models.embed_content(
-            model=EMBEDDING_MODEL,
-            contents=text,
-            config=types.EmbedContentConfig(task_type="SEMANTIC_SIMILARITY")
-        )
-        return result.embeddings[0].values
-    except Exception as e:
-        print(f"❌ Error generating embedding: {e}")
-        return None
+
 
 
 def search_reviews(query, semester_name="WINTER_2025_2026_RAG", top_k=15):
@@ -78,7 +62,7 @@ def search_reviews(query, semester_name="WINTER_2025_2026_RAG", top_k=15):
         print(f"✅ Connected to index: {semester_name}")
 
         # Generate query embedding
-        query_embedding = generate_embedding(query)
+        query_embedding = embed_query(query)
 
         if query_embedding is None:
             print("❌ Failed to generate embedding")
@@ -168,6 +152,12 @@ def chat_with_assistant(user_message, semester_name="WINTER_2025_2026_RAG", conv
     Returns:
         dict with 'response' and 'sources'
     """
+    load_dotenv()
+
+    # 2. Get the key securely
+    CHAT_MODEL = os.getenv("CHAT_MODEL")
+    GOOGLE_API_KEY = os.getenv("GOOLGE_API_KEY")
+    genai_client = genai.Client(api_key=GOOGLE_API_KEY)
     try:
         print(f"\n{'#' * 80}")
         print(f"💬 NEW CHAT REQUEST")
