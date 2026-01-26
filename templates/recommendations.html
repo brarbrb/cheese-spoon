@@ -267,8 +267,7 @@
                 data-target="#courseDetailsModal"
                 data-title="{{ course.title }}"
                 data-id="{{ course.ID }}"
-                data-summary='{{ {"interest": course.summary_interest, "workload": course.summary_workload, "bottom": course.summary_bottom_line} | tojson | safe }}'>
-                <i class="fas fa-expand mr-1"></i> Full Details
+data-summary='{{ {"interest": course.summary_interest, "workload": course.summary_workload, "bottom": course.summary_bottom_line, "description": course.description} | tojson | safe }}'>                <i class="fas fa-expand mr-1"></i> Full Details
               </button>
               
               <form action="{{ url_for('add_to_wishlist') }}" method="POST" class="ajax-add-wishlist ml-2">
@@ -465,28 +464,42 @@
     }
 
     $('#courseDetailsModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        var title = button.data('title');
-        var id = button.data('id');
-        var summaryData = button.data('summary'); 
+    var button = $(event.relatedTarget);
+    var title = button.data('title');
+    var id = button.data('id');
+    var summaryData = button.data('summary'); 
+    
+    var modal = $(this);
+    modal.find('.modal-title').text(title + ' (' + id + ')');
+    var modalBody = modal.find('.modal-body');
+
+    // Check if we have any data to show
+    if (summaryData && (summaryData.interest || summaryData.workload || summaryData.bottom || summaryData.description)) {
+        var htmlContent = '<div class="container-fluid text-right" dir="rtl">'; 
         
-        var modal = $(this);
-        modal.find('.modal-title').text(title + ' (' + id + ')');
-        var modalBody = modal.find('.modal-body');
-
-        if (summaryData && (summaryData.interest || summaryData.workload || summaryData.bottom)) {
-            var htmlContent = '<div class="container-fluid text-right" dir="rtl">'; 
-            
-            htmlContent += generateSectionHtml(' מה הסטודנטים חשבו על תוכן הקורס? ', 'fas fa-lightbulb', summaryData.interest, 'text-primary');
-            htmlContent += generateSectionHtml(' עומס ומטלות', 'fas fa-pencil-ruler', summaryData.workload, 'text-primary');
-            htmlContent += generateSectionHtml(' שורה תחתונה', 'fas fa-check-circle', summaryData.bottom, 'text-success');
-
-            htmlContent += '</div>';
-            modalBody.html(htmlContent);
-        } else {
-            modalBody.html('<div class="text-center py-5 muted"><i class="fas fa-exclamation-circle fa-2x mb-3"></i><br>Detailed AI summary is not available for this course.</div>');
+        // --- ADDED: Official Description Section ---
+        if (summaryData.description) {
+            htmlContent += `
+                <div class="mb-4">
+                    <h6 class="text-muted font-weight-bold mb-2">
+                        <i class="fas fa-book-open ml-2"></i>תיאור הקורס (סילבוס)
+                    </h6>
+                    <div class="small text-dark p-3 bg-light rounded border-left border-secondary" style="white-space: pre-wrap; line-height: 1.5;">${summaryData.description}</div>
+                </div>
+                <hr class="my-4">`;
         }
-    });
+
+        // AI Summary Sections
+        htmlContent += generateSectionHtml('מה הסטודנטים חשבו על תוכן הקורס?', 'fas fa-lightbulb', summaryData.interest, 'text-primary');
+        htmlContent += generateSectionHtml('עומס ומטלות', 'fas fa-pencil-ruler', summaryData.workload, 'text-primary');
+        htmlContent += generateSectionHtml('שורה תחתונה', 'fas fa-check-circle', summaryData.bottom, 'text-success');
+
+        htmlContent += '</div>';
+        modalBody.html(htmlContent);
+    } else {
+        modalBody.html('<div class="text-center py-5 muted"><i class="fas fa-exclamation-circle fa-2x mb-3"></i><br>Detailed information is not available for this course.</div>');
+    }
+});
 
     // --- 4. CHAT LOGIC ---
     const chatInput = document.getElementById('chatInput');

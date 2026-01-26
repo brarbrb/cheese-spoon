@@ -282,8 +282,13 @@ def recommend_courses(semester_name="WINTER_2025_2026",courses_list=[],no_exam=F
     # print(reranked_courses.head(10)[['title','avg_grade_all_sem',"prerequisites"]])
     return reranked_courses
 # recommend_courses(courses_list=['00960210'])
-# print(recommend_courses(courses_list=['00960210']).columns)
+# print(recommend_courses(courses_list=['00960210'])['description'])
+results = recommend_courses(courses_list=['00960210'])
 
+print("\n--- RECOMMENDED COURSE DESCRIPTIONS ---\n")
+for desc in results['description']:
+    print(desc)
+    print("-" * 30) # Visual separator between courses
 
 def get_course_by_id(course_id, semester_name="WINTER_2025_2026"):
     """

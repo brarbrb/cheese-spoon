@@ -125,3 +125,20 @@ def parse_review_summary(text):
 # --- 3. Helper function to normalize format to 6 digit ---
 def normalize_course_id(s: str) -> str:
     return re.sub(r"\D", "", s)[:6]
+
+# --- 4. Helper function clean course description to show it in "Full Details" window ---
+def clean_description(text):
+    if not text:
+        return ""
+    
+    # 1. Remove the "שם הקורס: ID - Name" header (usually the first line)
+    text = re.sub(r"שם הקורס:\s*\d+\s*-\s*[^\n]+", "", text)
+    
+    # 2. Add bolding/spacing to common Hebrew syllabus headers
+    text = text.replace("תוצאות למידה:", "\n\n**תוצאות למידה:**\n")
+    text = text.replace("מקצועות צמודים:", "\n\n**מקצועות צמודים:**\n")
+    
+    # 3. Clean up excessive newlines
+    text = re.sub(r'\n\s*\n', '\n\n', text)
+    
+    return text.strip()

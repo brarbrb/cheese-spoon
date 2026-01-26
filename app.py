@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, session, jsonify
 import re, json
-from src.utilities import parse_grades_pdf, parse_review_summary
+from src.utilities import parse_grades_pdf, parse_review_summary, normalize_course_id, clean_description
 from src.knowledgebase import recommend_courses, get_course_by_id
 from src.agent import chat_with_assistant 
 
@@ -73,6 +73,7 @@ def course_overview():
                         "summary_interest": interest_data,
                         "summary_workload": workload_data,
                         "summary_bottom_line": bottom_data,
+                        "description": clean_description(raw_data.get('description', '')),
                         
                         # Facts
                         "prereqs": prereqs,
@@ -293,6 +294,7 @@ def recommendations():
             course['summary_interest'] = split_summary_and_quotes(summary_parts['interest'])
             course['summary_workload'] = split_summary_and_quotes(summary_parts['workload'])
             course['summary_bottom_line'] = split_summary_and_quotes(summary_parts['bottom_line'])
+            course['description'] = clean_description(course.get('description', ''))
             
     except Exception as e:
         print(f"Rec Error: {e}")
@@ -357,13 +359,6 @@ def chat():
             'success': False
         }), 500
 
-
-# ============================================================================
-# UTILITY FUNCTIONS
-# ============================================================================
-
-def normalize_course_id(s: str) -> str:
-    return re.sub(r"\D", "", s)[:6]
 
 # ============================================================================
 # WISHLIST LOGIC
