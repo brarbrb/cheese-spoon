@@ -220,6 +220,7 @@
                             <i class="fas fa-balance-scale mr-1"></i>Moderate Load
                         </span>
                      {% endif %}
+
                 </div>
               </div>
               
@@ -476,9 +477,9 @@
         if (summaryData && (summaryData.interest || summaryData.workload || summaryData.bottom)) {
             var htmlContent = '<div class="container-fluid text-right" dir="rtl">'; 
             
-            htmlContent += generateSectionHtml('Content & Interest', 'fas fa-lightbulb', summaryData.interest, 'text-primary');
-            htmlContent += generateSectionHtml('Workload & Exams', 'fas fa-pencil-ruler', summaryData.workload, 'text-primary');
-            htmlContent += generateSectionHtml('Bottom Line', 'fas fa-check-circle', summaryData.bottom, 'text-success');
+            htmlContent += generateSectionHtml(' מה הסטודנטים חשבו על תוכן הקורס? ', 'fas fa-lightbulb', summaryData.interest, 'text-primary');
+            htmlContent += generateSectionHtml(' עומס ומטלות', 'fas fa-pencil-ruler', summaryData.workload, 'text-primary');
+            htmlContent += generateSectionHtml(' שורה תחתונה', 'fas fa-check-circle', summaryData.bottom, 'text-success');
 
             htmlContent += '</div>';
             modalBody.html(htmlContent);
