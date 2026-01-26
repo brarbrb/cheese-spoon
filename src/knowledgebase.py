@@ -3,10 +3,10 @@ from dotenv import load_dotenv
 from pinecone import Pinecone
 import numpy as np
 import pandas as pd
-# from sentence_transformers import SentenceTransformer
+from sentence_transformers import SentenceTransformer
 import torch
 import json
-from google import genai
+# from google import genai
 
 
 DEFAULT_AVG_GRADE = 60
@@ -42,20 +42,46 @@ def get_device():
         print("No GPU detected. Consider enabling GPU in Runtime -> Change runtime type")
     return device
 def get_embedding_model():
-    key = os.getenv("GOOLGE_API_KEY")
-    model = genai.Client(api_key=key)
-    return model
+    MODEL_NAME = os.getenv("EMBEDDING_MODEL")
+    device = get_device()
+
+    print(f"📥 Loading embedding model: {MODEL_NAME}")
+    print("   Note: This is a large model (~2.24GB), download may take a moment...")
+
+    _embedding_model = SentenceTransformer(MODEL_NAME, device=device)
+    embedding_dim = _embedding_model.get_sentence_embedding_dimension()
+
+    print(f"✅ Model loaded. Embedding dimension: {embedding_dim}")
+
+
+    return _embedding_model
+
+# def embed_query(query):
+#     model_name = os.getenv("EMBEDDING_MODEL")
+#     model = get_embedding_model()
+#     embedd_query = model.models.embed_content(
+#         model=model_name,
+#         contents=query,
+#         config={'task_type': 'RETRIEVAL_QUERY'} # מותאם לשמירה במסד נתונים לחיפוש
+#     )
+#
+#     return embedd_query.embeddings[0].values
 def embed_query(query):
-    model_name = os.getenv("EMBEDDING_MODEL")
     model = get_embedding_model()
-    embedd_query = model.models.embed_content(
-        model=model_name,
-        contents=query,
-        config={'task_type': 'RETRIEVAL_QUERY'} # מותאם לשמירה במסד נתונים לחיפוש
+
+
+    # E5 models require "query: " prefix for search queries
+    prefixed_query = f"query: {query}"
+
+    # Generate embedding
+    embedding = model.encode(
+        prefixed_query,
+        convert_to_numpy=True,
+        normalize_embeddings=True  # Recommended for similarity search
     )
 
-    return embedd_query.embeddings[0].values
-
+    # Convert to list for Pinecone
+    return embedding.tolist()
 def check_prerequisites(courses_list,prerequisites):
     if len(prerequisites) == 0:
         return True
