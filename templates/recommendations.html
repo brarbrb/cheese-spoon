@@ -44,6 +44,51 @@
       margin-left: 0;
       display: block;
     }
+
+    /* Agent Mode Selection Buttons */
+    .agent-mode-selector {
+      display: none; /* Hidden by default, shown on first interaction */
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      border: 1px solid #dee2e6;
+    }
+
+    .agent-mode-selector.active {
+      display: block;
+    }
+
+    .mode-btn {
+      width: 100%;
+      margin-bottom: 8px;
+      text-align: left;
+      padding: 10px;
+      border: 2px solid #dee2e6;
+      background: white;
+      transition: all 0.2s;
+    }
+
+    .mode-btn:hover {
+      border-color: #007bff;
+      background: #f8f9fa;
+    }
+
+    .mode-btn.selected {
+      border-color: #007bff;
+      background: #e7f3ff;
+    }
+
+    .mode-btn i {
+      margin-right: 8px;
+      width: 20px;
+    }
+
+    .mode-description {
+      font-size: 0.75rem;
+      color: #6c757d;
+      margin-top: 4px;
+    }
 </style>
 {% endblock %}
 
@@ -86,7 +131,7 @@
             <hr>
             <form action="{{ url_for('filters') }}" method="POST">
                 <input type="hidden" name="semester" value="{{ filters.semester }}">
-                
+
                 <div class="form-group">
                     <label class="small font-weight-bold">Refine your prompt</label>
                     <textarea class="form-control form-control-sm" name="preferences_text" rows="2" placeholder="e.g. I want easy courses with Python...">{{ user_query }}</textarea>
@@ -106,7 +151,7 @@
                 </div>
 
                 <label class="small font-weight-bold mb-2">Ranking Importance (1-5)</label>
-                
+
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group mb-2">
@@ -170,9 +215,21 @@
                             <input type="hidden" name="general_rating_importance" value="{{ val }}">
                             <input type="hidden" name="general_rating_weight" value="0">
                         </div>
-                        
-                        <input type="hidden" name="credits_importance" value="{{ session.importance.get('credits', 2) }}">
-                        <input type="hidden" name="credits_weight" value="0">
+
+                        <div class="form-group mb-2">
+                            <label class="small mb-1 d-block">More Credits</label>
+                            <div class="d-flex align-items-center">
+                                <div class="importance-selector" data-param="credits">
+                                    {% set val = session.importance.get('credits', 2)|int %}
+                                    {% for i in range(1, 6) %}
+                                        <button type="button" class="importance-btn {{ 'active' if (i-1) == val else '' }}" data-value="{{ i }}">{{ i }}</button>
+                                    {% endfor %}
+                                </div>
+                                <span class="weight-result ml-2 text-muted small">W: <span class="weight-value">0.00</span></span>
+                            </div>
+                            <input type="hidden" name="credits_importance" value="{{ val }}">
+                            <input type="hidden" name="credits_weight" value="0">
+                        </div>
                     </div>
                 </div>
 
@@ -199,7 +256,7 @@
                   <h5 class="mb-0 font-weight-bold">{{ course.title }}</h5>
                   <span class="muted small ml-2">({{ "%.1f"|format(course.credits) }} pts)</span>
                 </div>
-                
+
                 <div class="d-flex align-items-center mt-2 mb-2 small">
                      <span class="mr-3" title="Student Rating">
                         <i class="fas fa-star text-warning mr-1"></i>{{ "%.1f"|format(course.general_rating) }}/5
@@ -223,7 +280,7 @@
 
                 </div>
               </div>
-              
+
               <div class="text-right ml-3">
                 <div class="text-success font-weight-bold small">
                     {{ "%.0f"|format(course.combined_score * 100) }}% Match
@@ -262,19 +319,19 @@
             </div>
 
             <div class="d-flex justify-content-between mt-3 align-items-center">
-              <button class="btn btn-sm btn-link pl-0 text-secondary" 
-                data-toggle="modal" 
+              <button class="btn btn-sm btn-link pl-0 text-secondary"
+                data-toggle="modal"
                 data-target="#courseDetailsModal"
                 data-title="{{ course.title }}"
                 data-id="{{ course.ID }}"
 data-summary='{{ {"interest": course.summary_interest, "workload": course.summary_workload, "bottom": course.summary_bottom_line, "description": course.description} | tojson | safe }}'>                <i class="fas fa-expand mr-1"></i> Full Details
               </button>
-              
+
               <form action="{{ url_for('add_to_wishlist') }}" method="POST" class="ajax-add-wishlist ml-2">
                   <input type="hidden" name="course_id" value="{{ course.ID }}">
                   <input type="hidden" name="course_name" value="{{ course.title }}">
                   <input type="hidden" name="course_points" value="{{ course.credits }}">
-                  
+
                   {% if course.ID in wishlist_ids %}
                       <button class="btn btn-sm btn-success" type="submit" disabled>
                         <i class="fas fa-check mr-1"></i> Added
@@ -306,22 +363,40 @@ data-summary='{{ {"interest": course.summary_interest, "workload": course.summar
           </div>
 
           <div id="chatHistory" class="chat-messages">
-          <div class="chat-message bot">
-            שלום! אני כאן כדי לענות על שאלות ספציפיות על קורסים 🎓<br><br>
-            אתה יכול לשאול אותי:<br>
-            • "מה אומרים על עומס העבודה בקורס X?"<br>
-            • "האם יש מבחן בקורס Y?"<br>
-            • "מה ההבדל בקושי בין קורס A לקורס B?"<br>
-            • "איך המרצה Z?"<br>
-            • "כמה זמן לוקח להכין למבחן?"
+            <div class="chat-message bot">
+              שלום! אני העוזר החכם של CheeseSpoon 🤖<br><br>
+              <strong>אני יכול לעזור לך בשני דרכים:</strong>
+            </div>
+
+            <!-- Agent Mode Selection -->
+            <div class="agent-mode-selector active" id="agentModeSelector">
+              <button class="mode-btn" data-mode="rag" id="ragModeBtn">
+                <div>
+                  <i class="fas fa-question-circle text-primary"></i>
+                  <strong>שאל שאלות על קורסים</strong>
+                </div>
+                <div class="mode-description">
+                  לדוגמה: "מה אומרים על עומס העבודה בקורס X?" או "האם יש מבחן?"
+                </div>
+              </button>
+
+              <button class="mode-btn" data-mode="rerank" id="rerankModeBtn">
+                <div>
+                  <i class="fas fa-sliders-h text-success"></i>
+                  <strong>דרג מחדש בצורה אישית</strong>
+                </div>
+                <div class="mode-description">
+                  לדוגמה: "אני רוצה קורסים קלים" או "העדף קורסים עם פייתון"
+                </div>
+              </button>
+            </div>
           </div>
-        </div>
 
           <div class="chat-input-area">
             <div class="input-group">
-              <input type="text" id="chatInput" class="form-control" placeholder="Type a message..." aria-label="Ask a question">
+              <input type="text" id="chatInput" class="form-control" placeholder="בחר אפשרות למעלה או כתוב הודעה..." aria-label="Ask a question" disabled>
               <div class="input-group-append">
-                <button class="btn btn-dark" type="button" id="sendMessageBtn">
+                <button class="btn btn-dark" type="button" id="sendMessageBtn" disabled>
                   <i class="fas fa-paper-plane"></i>
                 </button>
               </div>
@@ -369,7 +444,7 @@ data-summary='{{ {"interest": course.summary_interest, "workload": course.summar
     function normalizeWeights() {
       const adjustedValues = {};
       Object.keys(importanceValues).forEach(key => {
-        adjustedValues[key] = importanceValues[key] - 1; 
+        adjustedValues[key] = importanceValues[key] - 1;
       });
       const total = Object.values(adjustedValues).reduce((sum, val) => sum + val, 0);
       const weights = {};
@@ -467,16 +542,16 @@ data-summary='{{ {"interest": course.summary_interest, "workload": course.summar
     var button = $(event.relatedTarget);
     var title = button.data('title');
     var id = button.data('id');
-    var summaryData = button.data('summary'); 
-    
+    var summaryData = button.data('summary');
+
     var modal = $(this);
     modal.find('.modal-title').text(title + ' (' + id + ')');
     var modalBody = modal.find('.modal-body');
 
     // Check if we have any data to show
     if (summaryData && (summaryData.interest || summaryData.workload || summaryData.bottom || summaryData.description)) {
-        var htmlContent = '<div class="container-fluid text-right" dir="rtl">'; 
-        
+        var htmlContent = '<div class="container-fluid text-right" dir="rtl">';
+
         // --- ADDED: Official Description Section ---
         if (summaryData.description) {
             htmlContent += `
@@ -501,11 +576,50 @@ data-summary='{{ {"interest": course.summary_interest, "workload": course.summar
     }
 });
 
-    // --- 4. CHAT LOGIC ---
+    // --- 4. CHAT LOGIC WITH AGENT MODE SELECTION ---
     const chatInput = document.getElementById('chatInput');
     const sendBtn = document.getElementById('sendMessageBtn');
     const chatHistory = document.getElementById('chatHistory');
+    const agentModeSelector = document.getElementById('agentModeSelector');
+    const ragModeBtn = document.getElementById('ragModeBtn');
+    const rerankModeBtn = document.getElementById('rerankModeBtn');
+
     let conversationHistory = [];
+    let currentAgentMode = null;
+
+    // Mode selection handlers
+    function selectMode(mode) {
+      currentAgentMode = mode;
+
+      // Update UI
+      ragModeBtn.classList.toggle('selected', mode === 'rag');
+      rerankModeBtn.classList.toggle('selected', mode === 'rerank');
+
+      // Enable input
+      chatInput.disabled = false;
+      sendBtn.disabled = false;
+      chatInput.focus();
+
+      // Update placeholder
+      if (mode === 'rag') {
+        chatInput.placeholder = 'שאל שאלה על קורס...';
+        appendMessage('נבחר: שאלות על קורסים. מה תרצה לדעת?', 'bot');
+      } else {
+        chatInput.placeholder = 'תאר איך תרצה לדרג מחדש...';
+        appendMessage('נבחר: דירוג מחדש. איך תרצה לשנות את הדירוג?', 'bot');
+      }
+
+      // Hide mode selector after first selection (can be toggled back)
+      agentModeSelector.classList.remove('active');
+    }
+
+    ragModeBtn.addEventListener('click', () => selectMode('rag'));
+    rerankModeBtn.addEventListener('click', () => selectMode('rerank'));
+
+    // Allow user to change mode by clicking the buttons again
+    function toggleModeSelector() {
+      agentModeSelector.classList.toggle('active');
+    }
 
     function appendMessage(text, sender, sources = null) {
       const msgDiv = document.createElement('div');
@@ -518,6 +632,14 @@ data-summary='{{ {"interest": course.summary_interest, "workload": course.summar
         sourcesDiv.innerHTML = '<strong>מקורות:</strong><br>' + sources.map(s => `• ${s.course_title} (${s.course_id}) - ${s.relevance_score}%`).join('<br>');
         chatHistory.appendChild(sourcesDiv);
       }
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    function appendModeChangeButton() {
+      const btnDiv = document.createElement('div');
+      btnDiv.className = 'text-center mt-2 mb-2';
+      btnDiv.innerHTML = '<button class="btn btn-sm btn-outline-secondary" onclick="toggleModeSelector()"><i class="fas fa-exchange-alt mr-1"></i>שנה מצב</button>';
+      chatHistory.appendChild(btnDiv);
       chatHistory.scrollTop = chatHistory.scrollHeight;
     }
 
@@ -537,7 +659,8 @@ data-summary='{{ {"interest": course.summary_interest, "workload": course.summar
 
     async function handleSend() {
       const text = chatInput.value.trim();
-      if(!text) return;
+      if(!text || !currentAgentMode) return;
+
       chatInput.disabled = true;
       sendBtn.disabled = true;
       appendMessage(text, 'user');
@@ -549,15 +672,27 @@ data-summary='{{ {"interest": course.summary_interest, "workload": course.summar
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, history: conversationHistory.slice(-6) })
+          body: JSON.stringify({
+            message: text,
+            agent_mode: currentAgentMode,
+            history: conversationHistory.slice(-6)
+          })
         });
         const data = await response.json();
         removeTypingIndicator();
+
         if (data.success) {
           appendMessage(data.response, 'bot', data.sources);
           conversationHistory.push({ role: 'assistant', content: data.response });
+
+          // If reranker returned new parameters, apply them
+          if (data.action_type === 'rerank' && data.new_weights) {
+            await applyRerank(data.new_weights, data.new_filters, data.new_query);
+          }
+
+          appendModeChangeButton();
         } else {
-          appendMessage('מצטער, אירעה שגיאה. אנא נסה שוב.', 'bot');
+          appendMessage(data.response || 'מצטער, אירעה שגיאה. אנא נסה שוב.', 'bot');
         }
       } catch (error) {
         console.error('Error:', error);
@@ -570,9 +705,46 @@ data-summary='{{ {"interest": course.summary_interest, "workload": course.summar
       }
     }
 
+    async function applyRerank(weights, filters, query) {
+      try {
+        appendMessage('⏳ מדרג מחדש את הקורסים...', 'bot');
+        showTypingIndicator();
+
+        const response = await fetch('/api/rerank', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            weights: weights,
+            filters: filters || {},
+            query: query || null
+          })
+        });
+
+        const data = await response.json();
+        removeTypingIndicator();
+
+        if (data.success) {
+          // Reload the page to show new rankings
+          appendMessage('✅ הדירוג עודכן! טוען מחדש את העמוד...', 'bot');
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
+        } else {
+          appendMessage('❌ לא הצלחתי לדרג מחדש. אנא נסה שוב.', 'bot');
+        }
+      } catch (error) {
+        console.error('Rerank error:', error);
+        removeTypingIndicator();
+        appendMessage('שגיאה בדירוג מחדש.', 'bot');
+      }
+    }
+
     if (sendBtn) sendBtn.addEventListener('click', handleSend);
     if (chatInput) chatInput.addEventListener('keypress', (e) => {
       if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
     });
+
+    // Make toggleModeSelector available globally
+    window.toggleModeSelector = toggleModeSelector;
   </script>
 {% endblock %}

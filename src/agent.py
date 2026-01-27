@@ -215,7 +215,6 @@ def chat_with_assistant(user_message, semester_name="WINTER_2025_2026_RAG", conv
         print(f"{'=' * 80}")
         print(f"Model: {CHAT_MODEL}")
         print(f"Temperature: 0.4")
-        print(f"Max tokens: 800")
         print(f"\nFull prompt (first 800 chars):")
         print(user_prompt[:800])
         print(f"{'=' * 80}\n")
@@ -227,7 +226,7 @@ def chat_with_assistant(user_message, semester_name="WINTER_2025_2026_RAG", conv
             config={
                 "system_instruction": system_prompt,
                 "temperature": 0.4,  # Lower temperature for more focused answers
-                "max_output_tokens": 5000,
+                "max_output_tokens": 2000,
             }
         )
 
@@ -286,79 +285,7 @@ def chat_with_assistant(user_message, semester_name="WINTER_2025_2026_RAG", conv
         }
 
 
-def answer_course_question(course_id, question, semester_name="WINTER_2025_2026_RAG"):
-    """
-    Answer a specific question about a particular course
 
-    Args:
-        course_id: Course ID
-        question: Specific question about the course
-        semester_name: Semester identifier
-
-    Returns:
-        Answer text
-    """
-    try:
-        print(f"\n{'=' * 80}")
-        print(f"❓ COURSE-SPECIFIC QUESTION")
-        print(f"{'=' * 80}")
-        print(f"Course ID: {course_id}")
-        print(f"Question: {question}")
-
-        # Create targeted query
-        query = f"קורס {course_id} {question}"
-        print(f"Formatted query: {query}")
-
-        # Search for reviews of this specific course
-        search_results = search_reviews(query, semester_name, top_k=15)
-
-        # Filter to only this course and high relevance
-        course_reviews = [
-            r for r in search_results
-            if r['course_id'] == str(course_id) and r['score'] > 0.3
-        ]
-
-        print(f"Filtered to {len(course_reviews)} reviews for course {course_id}")
-
-        if not course_reviews:
-            print("⚠️ No relevant reviews found")
-            return "לא נמצא מידע ספציפי על נושא זה בביקורות."
-
-        # Build context
-        context = build_context(course_reviews)
-
-        # Create focused prompt
-        prompt = f"""שאלה על קורס {course_id}: {question}
-
-ביקורות רלוונטיות:
-{context}
-
-ענה על השאלה בצורה ישירה וספציפית בהתבסס על הביקורות.
-אל תסכם את כל הקורס - רק ענה על השאלה הספציפית שנשאלה.
-אם אין מידע - אמר "לא מצאתי מידע על כך בביקורות"."""
-
-        print(f"\n🤖 Calling LLM for course-specific answer...")
-
-        response = genai_client.models.generate_content(
-            model=CHAT_MODEL,
-            contents=prompt,
-            config={
-                "temperature": 0.3,
-                "max_output_tokens": 400,
-            }
-        )
-
-        answer = response.text
-        print(f"✅ Answer received: {answer[:200]}...")
-        print(f"{'=' * 80}\n")
-
-        return answer
-
-    except Exception as e:
-        print(f"❌ Error answering course question: {e}")
-        import traceback
-        traceback.print_exc()
-        return "לא ניתן לענות על השאלה כרגע."
 
 
 # For testing
