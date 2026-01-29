@@ -50,7 +50,7 @@ pip install -r requirements.txt
 ```
 
 ### 3) Configure environment variables
-Replace the `.env` file in the same folder as `app.py`.
+Add the api-keys for pinecone and gemini in the `.env` file.
 
 ### 4) Start the server
 ```bash
