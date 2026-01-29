@@ -1,5 +1,25 @@
-pinecone
-flask
-dotenv
-sentence_transformers
-google-genai
+# Web Framework
+Flask==3.0.0
+
+# PDF Processing
+pdfplumber==0.11.0
+
+# Data Processing
+pandas==2.1.4
+numpy==1.26.2
+
+# Machine Learning & Embeddings
+sentence-transformers==2.3.1
+torch==2.1.2
+
+# Vector Database
+pinecone-client==3.0.0
+
+# Google AI (for GenAI)
+google-genai==0.2.0
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# Optional: For production deployment
+gunicorn==21.2.0
