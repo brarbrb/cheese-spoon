@@ -5,35 +5,54 @@ CheeseSpoon is an intelligent course-recommender for Technion students, designed
 ## Folder structure
 ```
 .
-├── app.py
-├── templates/
-│   ├── index.html
-│   ├── upload.html
-│   ├── eligibility.html
-│   ├── recommendations.html
-│   └── course_overview.html
-└── static/
-    ├── styles.css
-    └── logo.png
+├── cheese-spoon/
+│   ├── data/                      
+│   │   ├── preprocessing/         # Processed course data
+│   │   └── scraping/             # Raw scraped data
+│   ├── src/                      # Source code
+│   │   ├── agent.py              # Main agent implementation
+│   │   ├── agent_supervisor.py   # Agent coordination and routing
+│   │   ├── knowledgebase.py      # Course database and search logic
+│   │   └── utilities.py          # Helper functions (PDF parsing, etc.)
+│   ├── static/                   # Static assets
+│   │   ├── logo.png              # Application logo
+│   │   └── styles.css            # Stylesheets
+│   ├── templates/                # HTML templates
+│   │   ├── base.html             # Base template
+│   │   ├── index.html            # Landing page
+│   │   ├── course_overview.html  # Course details page
+│   │   ├── filters.html          # Filter configuration page
+│   │   └── recommendations.html  # Results page with chat
+│   ├── app.py                    # Flask application
+│   ├── main.py                   # CLI entry point
+│   ├── requirements.txt          # Python dependencies
+│   ├── README.md                 # This file
 ```
+
+## How to run
 
 ## How to run
 
 ### 1) Create and activate a virtual environment
 ```bash
 python -m venv .venv
+
 # Windows:
 .venv\Scripts\activate
+
 # macOS/Linux:
 source .venv/bin/activate
 ```
 
-### 2) Install dependencies
+### 2) Install all dependencies
 ```bash
-pip install flask
+pip install -r requirements.txt
 ```
 
-### 3) Start the server
+### 3) Configure environment variables
+Replace the `.env` file in the same folder as `app.py`.
+
+### 4) Start the server
 ```bash
 flask --app app run --debug
 ```
@@ -41,5 +60,3 @@ or
 ```bash
 python app.py
 ```
-
-**Note**: For now this is the mockup version, i.e. app.py is mostly statick with mock data. 
